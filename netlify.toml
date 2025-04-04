@@ -6,6 +6,9 @@
 [build.environment]
   NODE_VERSION = "18"
   NPM_VERSION = "10"
+  SECRETS_SCAN_ENABLED = "true"
+  SECRETS_SCAN_OMIT_PATHS = "dist/assets/*,dist/index.html"
+  SECRETS_SCAN_OMIT_KEYS = "VITE_STRIPE_PUBLIC_KEY,__STRIPE_PUBLIC_KEY__,VITE_API_URL,__API_URL__"
 
 [functions]
   external_node_modules = ["express", "openai", "@anthropic-ai/sdk", "@google/generative-ai"]
@@ -16,26 +19,12 @@
   external_node_modules = ["express", "openai", "@anthropic-ai/sdk", "@google/generative-ai"]
   node_bundler = "esbuild"
 
-# Configure secrets scanning
 [build.processing]
   skip_processing = false
 
 [build.processing.js]
   bundle = true
   minify = true
-
-[build.environment.secrets]
-  SECRETS_SCAN_ENABLED = true
-  SECRETS_SCAN_OMIT_PATHS = [
-    "dist/assets/*",
-    "dist/index.html"
-  ]
-  SECRETS_SCAN_OMIT_KEYS = [
-    "VITE_STRIPE_PUBLIC_KEY",
-    "__STRIPE_PUBLIC_KEY__",
-    "VITE_API_URL",
-    "__API_URL__"
-  ]
 
 [dev]
   framework = "vite"
