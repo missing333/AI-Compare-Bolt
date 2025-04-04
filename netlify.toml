@@ -12,22 +12,30 @@
   node_bundler = "esbuild"
   included_files = ["dist/**"]
 
-# Configure secrets scanning
-[secrets]
-  SECRETS_SCAN_ENABLED = true
-  SECRETS_SCAN_OMIT_PATHS = ["dist/assets/*"]
-  SECRETS_SCAN_OMIT_KEYS = ["VITE_*"]
-
 [functions.server]
   external_node_modules = ["express", "openai", "@anthropic-ai/sdk", "@google/generative-ai"]
   node_bundler = "esbuild"
 
+# Configure secrets scanning
 [build.processing]
   skip_processing = false
 
 [build.processing.js]
   bundle = true
   minify = true
+
+[build.environment.secrets]
+  SECRETS_SCAN_ENABLED = true
+  SECRETS_SCAN_OMIT_PATHS = [
+    "dist/assets/*",
+    "dist/index.html"
+  ]
+  SECRETS_SCAN_OMIT_KEYS = [
+    "VITE_STRIPE_PUBLIC_KEY",
+    "__STRIPE_PUBLIC_KEY__",
+    "VITE_API_URL",
+    "__API_URL__"
+  ]
 
 [dev]
   framework = "vite"
