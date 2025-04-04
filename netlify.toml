@@ -1,11 +1,20 @@
 [build]
-  command = "npm run build"
+  command = "npm install && npm run build"
   publish = "dist"
   functions = "functions"
+
+[build.environment]
+  NODE_VERSION = "18"
+  NPM_VERSION = "10"
 
 [functions]
   external_node_modules = ["express", "openai", "@anthropic-ai/sdk", "@google/generative-ai"]
   node_bundler = "esbuild"
+  included_files = ["dist/**"]
+
+[dev]
+  framework = "vite"
+  targetPort = 5173
 
 [[redirects]]
   from = "/api/*"
