@@ -30,6 +30,12 @@ export default defineConfig(({ mode }) => {
           secure: false,
         },
       },
+      host: true,
+      allowedHosts: [
+        'localhost',
+        'devserver-ui--promptcompare.netlify.app',
+        'devserver-businesslogic--promptcompare.netlify.app'
+      ],
     },
     define: {
       __STRIPE_PUBLIC_KEY__: JSON.stringify(env.VITE_STRIPE_PUBLIC_KEY || ''),
