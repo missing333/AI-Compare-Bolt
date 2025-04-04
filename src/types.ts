@@ -7,6 +7,7 @@ export interface AIModel {
 
 export interface ComparisonResult {
   modelId: string;
+  modelName: string;
   version: string;
   response: string;
   latency: number;

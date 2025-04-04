@@ -51,10 +51,23 @@ app.post('/api/compare', async (req, res) => {
       // Simulate API call delay
       await new Promise(resolve => setTimeout(resolve, 1000));
       
+      // Format the model name nicely
+      const modelName = model.id.split('-')
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ');
+      
+      // Create a formatted response with clear header
+      const formattedResponse = [
+        `Here is a mock response to your question "${prompt}" from ${modelName}.`,
+        'This would be replaced with actual AI model output in production.'
+      ].join('\n');
+
       return {
-        modelId: model.modelId,
-        response: `This is a mock response from ${model.modelId} version ${model.version} for prompt: "${prompt}"`,
-        latency: Math.random() * 1000
+        modelId: model.id,
+        modelName: modelName,
+        version: model.version || 'Latest Version',
+        response: formattedResponse,
+        latency: Number((Math.random() * 1000).toFixed(2))
       };
     }));
 
