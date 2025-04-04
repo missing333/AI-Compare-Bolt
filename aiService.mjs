@@ -97,19 +97,10 @@ class AIService {
       console.log('Making Gemini API call with model:', modelVersion);
       const startTime = Date.now();
       
-      const model = this.gemini.getGenerativeModel({ model: modelVersion });
+      const model = this.gemini.getGenerativeModel({ model: 'gemini-pro' }); // Always use gemini-pro for now
       
-      // Create a chat session
-      const chat = model.startChat({
-        history: [],
-        generationConfig: {
-          temperature: 0.7,
-          maxOutputTokens: 1000,
-        },
-      });
-
-      // Send the message and get the response
-      const result = await chat.sendMessage(prompt);
+      // Send the message directly without creating a chat session
+      const result = await model.generateContent(prompt);
       const response = await result.response;
       
       if (!response || !response.text) {
@@ -199,7 +190,7 @@ class AIService {
           };
         } else if (this.isGeminiModel(model.id)) {
           console.log('Processing Gemini model:', model.id);
-          const version = model.version === 'Latest Version' ? 'gemini-2.0-flash-lite-001' : model.version;
+          const version = 'gemini-pro'; // Always use gemini-pro for now
           console.log('Using Gemini version:', version);
           const { response, responseTime } = await this.getGeminiResponse(prompt, version);
           return {
