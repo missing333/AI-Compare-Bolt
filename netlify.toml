@@ -12,6 +12,17 @@
   node_bundler = "esbuild"
   included_files = ["dist/**"]
 
+[functions.server]
+  external_node_modules = ["express", "openai", "@anthropic-ai/sdk", "@google/generative-ai"]
+  node_bundler = "esbuild"
+
+[build.processing]
+  skip_processing = false
+
+[build.processing.js]
+  bundle = true
+  minify = true
+
 [dev]
   framework = "vite"
   targetPort = 5173

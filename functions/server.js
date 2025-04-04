@@ -91,11 +91,6 @@ if (process.env.NODE_ENV !== 'production') {
 
 // For Netlify Functions
 export const handler = async (event, context) => {
-  // Only allow POST and GET methods
-  if (!['POST', 'GET'].includes(event.httpMethod)) {
-    return { statusCode: 405, body: 'Method Not Allowed' };
-  }
-
   // Add CORS headers
   const headers = {
     'Access-Control-Allow-Origin': corsOptions.origin[0],
@@ -133,7 +128,11 @@ export const handler = async (event, context) => {
         return {
           statusCode: 200,
           headers,
-          body: JSON.stringify({ status: 'ok', environment: process.env.NODE_ENV })
+          body: JSON.stringify({ 
+            status: 'ok', 
+            environment: process.env.NODE_ENV,
+            timestamp: new Date().toISOString()
+          })
         };
       
       case '/api/create-payment-intent':
@@ -144,9 +143,8 @@ export const handler = async (event, context) => {
             body: JSON.stringify({ error: 'Method Not Allowed' })
           };
         }
-        const { models, prompt } = body;
         
-        if (!models || !Array.isArray(models)) {
+        if (!body.models || !Array.isArray(body.models)) {
           return { 
             statusCode: 400, 
             headers,
@@ -154,12 +152,16 @@ export const handler = async (event, context) => {
           };
         }
 
-        const amount = models.length * 50;
+        const amount = body.models.length * 50;
         const paymentIntent = await stripe.paymentIntents.create({
           amount,
           currency: 'usd',
-          metadata: { prompt, models: JSON.stringify(models) }
+          metadata: { 
+            prompt: body.prompt, 
+            models: JSON.stringify(body.models)
+          }
         });
+
         return {
           statusCode: 200,
           headers,
@@ -185,6 +187,7 @@ export const handler = async (event, context) => {
 
         console.log('Making comparison with models:', body.models);
         const results = await aiService.getComparisonResults(body.models, body.prompt);
+        
         return {
           statusCode: 200,
           headers,
