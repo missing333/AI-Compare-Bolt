@@ -11,7 +11,9 @@ import { AI_MODELS } from './data/models';
 import { loadStripe } from '@stripe/stripe-js';
 
 const STRIPE_PRODUCT_ID = 'prod_S45beS0xV3JGII';
-const API_URL = '/.netlify/functions/server';
+const API_URL = import.meta.env.PROD 
+  ? '/.netlify/functions/server'  // Production API endpoint
+  : 'http://localhost:3000';      // Development API endpoint
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
 
 function App() {

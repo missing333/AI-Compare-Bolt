@@ -4,7 +4,9 @@ import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-
 import type { SelectedModelInstance, ComparisonResult } from '../types';
 import { toast } from 'react-hot-toast';
 
-const API_URL = '/.netlify/functions/server';
+const API_URL = import.meta.env.PROD 
+  ? '/.netlify/functions/server'  // Production API endpoint
+  : 'http://localhost:3000';      // Development API endpoint
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
 
 interface PaymentModalProps {
@@ -121,35 +123,59 @@ function CheckoutForm({ selectedModels, prompt, onPaymentSuccess, onClose }: Omi
 
 export function PaymentModal({ isOpen, onClose, selectedModels, prompt, onPaymentSuccess }: PaymentModalProps) {
   const [clientSecret, setClientSecret] = useState<string | null>(null);
+  const [key, setKey] = useState(0); // Add a key to force re-render of Elements
 
+  // Reset state when modal is closed
   useEffect(() => {
-    if (isOpen && selectedModels.length > 0) {
-      // Create PaymentIntent as soon as the modal opens
-      fetch(`${API_URL}/api/create-payment-intent`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          models: selectedModels.map(model => ({
-            id: model.modelId,
-            version: model.version
-          })),
-          prompt
-        }),
-      })
-        .then((res) => res.json())
-        .then((data) => {
+    if (!isOpen) {
+      setClientSecret(null);
+      setKey(prev => prev + 1); // Increment key to force new Elements instance
+    }
+  }, [isOpen]);
+
+  // Create payment intent when modal opens
+  useEffect(() => {
+    let isMounted = true;
+
+    const createPaymentIntent = async () => {
+      if (isOpen && selectedModels.length > 0) {
+        try {
+          const response = await fetch(`${API_URL}/api/create-payment-intent`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              models: selectedModels.map(model => ({
+                id: model.modelId,
+                version: model.version
+              })),
+              prompt
+            }),
+          });
+          
+          const data = await response.json();
+          
+          if (!isMounted) return;
+          
           if (data.error) {
             throw new Error(data.error);
           }
+          
           setClientSecret(data.clientSecret);
-        })
-        .catch((error) => {
+        } catch (error: any) {
+          if (!isMounted) return;
           toast.error(error.message || 'Failed to initialize payment');
           onClose();
-        });
-    }
+        }
+      }
+    };
+
+    createPaymentIntent();
+
+    return () => {
+      isMounted = false;
+    };
   }, [isOpen, selectedModels, prompt]);
 
   if (!isOpen) return null;
@@ -160,7 +186,12 @@ export function PaymentModal({ isOpen, onClose, selectedModels, prompt, onPaymen
         <h2 className="text-2xl font-bold mb-4">Complete Your Purchase</h2>
         
         {clientSecret ? (
-          <Elements stripe={stripePromise} options={{ clientSecret }}>
+          <Elements key={key} stripe={stripePromise} options={{ 
+            clientSecret,
+            appearance: {
+              theme: 'stripe'
+            }
+          }}>
             <CheckoutForm
               selectedModels={selectedModels}
               prompt={prompt}
