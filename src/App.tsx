@@ -57,51 +57,13 @@ function App() {
       return;
     }
 
-    try {
-      const stripe = await stripePromise;
-      if (!stripe) {
-        toast.error('Payment system not available');
-        return;
-      }
+    setShowPayment(true);
+  };
 
-      setIsLoading(true);
-
-      // Create a payment session with the current number of models
-      const response = await fetch(`${API_URL}/api/create-payment-session`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          models: selectedModels.map(model => ({
-            id: model.modelId,
-            version: model.version
-          })),
-          prompt: prompt.trim()
-        }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to create payment session');
-      }
-
-      const session = await response.json();
-
-      // Redirect to Stripe checkout
-      const result = await stripe.redirectToCheckout({
-        sessionId: session.id
-      });
-
-      if (result.error) {
-        toast.error(result.error.message || 'Payment failed');
-      }
-    } catch (error: any) {
-      toast.error(error?.message || 'Failed to process payment');
-      console.error('Payment error:', error);
-    } finally {
-      setIsLoading(false);
-    }
+  const handlePaymentSuccess = (results: ComparisonResult[]) => {
+    setResults(results);
+    setShowPayment(false);
+    setIsLoading(false);
   };
 
   return (
@@ -159,6 +121,8 @@ function App() {
         isOpen={showPayment}
         onClose={() => setShowPayment(false)}
         selectedModels={selectedModels}
+        prompt={prompt}
+        onPaymentSuccess={handlePaymentSuccess}
       />
     </div>
   );
