@@ -119,7 +119,7 @@ class AIService {
       const responseTime = Number(((Date.now() - startTime) / 1000).toFixed(2));
       
       return {
-        response: response.text(),
+        response: response.text,
         responseTime
       };
     } catch (error) {
