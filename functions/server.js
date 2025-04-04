@@ -2,7 +2,7 @@ import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
 import Stripe from 'stripe';
-import aiService from './aiService.mjs';
+import aiService from './aiService.js';
 import { createServer } from 'http';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
@@ -96,6 +96,22 @@ export const handler = async (event, context) => {
     return { statusCode: 405, body: 'Method Not Allowed' };
   }
 
+  // Add CORS headers
+  const headers = {
+    'Access-Control-Allow-Origin': corsOptions.origin[0],
+    'Access-Control-Allow-Methods': corsOptions.methods.join(', '),
+    'Access-Control-Allow-Headers': 'Content-Type',
+    'Access-Control-Allow-Credentials': 'true'
+  };
+
+  // Handle OPTIONS request for CORS preflight
+  if (event.httpMethod === 'OPTIONS') {
+    return {
+      statusCode: 204,
+      headers
+    };
+  }
+
   const path = event.path.replace('/.netlify/functions/server', '');
   
   // Parse body for POST requests
@@ -103,7 +119,11 @@ export const handler = async (event, context) => {
   try {
     body = event.body ? JSON.parse(event.body) : {};
   } catch (error) {
-    return { statusCode: 400, body: 'Invalid JSON' };
+    return { 
+      statusCode: 400, 
+      headers,
+      body: JSON.stringify({ error: 'Invalid JSON' })
+    };
   }
 
   // Route the request
@@ -112,14 +132,28 @@ export const handler = async (event, context) => {
       case '/api/health':
         return {
           statusCode: 200,
+          headers,
           body: JSON.stringify({ status: 'ok', environment: process.env.NODE_ENV })
         };
       
       case '/api/create-payment-intent':
         if (event.httpMethod !== 'POST') {
-          return { statusCode: 405, body: 'Method Not Allowed' };
+          return { 
+            statusCode: 405, 
+            headers,
+            body: JSON.stringify({ error: 'Method Not Allowed' })
+          };
         }
         const { models, prompt } = body;
+        
+        if (!models || !Array.isArray(models)) {
+          return { 
+            statusCode: 400, 
+            headers,
+            body: JSON.stringify({ error: 'Invalid models data' })
+          };
+        }
+
         const amount = models.length * 50;
         const paymentIntent = await stripe.paymentIntents.create({
           amount,
@@ -128,26 +162,47 @@ export const handler = async (event, context) => {
         });
         return {
           statusCode: 200,
+          headers,
           body: JSON.stringify({ clientSecret: paymentIntent.client_secret })
         };
 
       case '/api/compare':
         if (event.httpMethod !== 'POST') {
-          return { statusCode: 405, body: 'Method Not Allowed' };
+          return { 
+            statusCode: 405, 
+            headers,
+            body: JSON.stringify({ error: 'Method Not Allowed' })
+          };
         }
+        
+        if (!body.models || !Array.isArray(body.models) || !body.prompt) {
+          return { 
+            statusCode: 400, 
+            headers,
+            body: JSON.stringify({ error: 'Invalid request data' })
+          };
+        }
+
+        console.log('Making comparison with models:', body.models);
         const results = await aiService.getComparisonResults(body.models, body.prompt);
         return {
           statusCode: 200,
+          headers,
           body: JSON.stringify(results)
         };
 
       default:
-        return { statusCode: 404, body: 'Not Found' };
+        return { 
+          statusCode: 404, 
+          headers,
+          body: JSON.stringify({ error: 'Not Found' })
+        };
     }
   } catch (error) {
     console.error('Server error:', error);
     return {
       statusCode: 500,
+      headers,
       body: JSON.stringify({
         error: error.message,
         stack: process.env.NODE_ENV === 'development' ? error.stack : undefined

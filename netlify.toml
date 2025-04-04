@@ -4,7 +4,7 @@
   functions = "functions"
 
 [functions]
-  external_node_modules = ["express"]
+  external_node_modules = ["express", "openai", "@anthropic-ai/sdk", "@google/generative-ai"]
   node_bundler = "esbuild"
 
 [[redirects]]
