@@ -10,6 +10,13 @@ export default defineConfig({
   build: {
     sourcemap: true,
     outDir: 'dist',
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom', 'react-router-dom'],
+        },
+      },
+    },
   },
   server: {
     port: 5173,
@@ -20,5 +27,10 @@ export default defineConfig({
         secure: false,
       },
     },
+  },
+  define: {
+    // Prevent environment variables from being directly embedded in the build
+    'process.env.VITE_STRIPE_PUBLIC_KEY': JSON.stringify(process.env.VITE_STRIPE_PUBLIC_KEY),
+    'process.env.VITE_API_URL': JSON.stringify(process.env.VITE_API_URL),
   },
 });

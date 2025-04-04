@@ -12,6 +12,12 @@
   node_bundler = "esbuild"
   included_files = ["dist/**"]
 
+# Configure secrets scanning
+[secrets]
+  SECRETS_SCAN_ENABLED = true
+  SECRETS_SCAN_OMIT_PATHS = ["dist/assets/*"]
+  SECRETS_SCAN_OMIT_KEYS = ["VITE_*"]
+
 [functions.server]
   external_node_modules = ["express", "openai", "@anthropic-ai/sdk", "@google/generative-ai"]
   node_bundler = "esbuild"
