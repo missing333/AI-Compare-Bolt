@@ -33,14 +33,18 @@ class AIService {
     }
   }
 
+  isOpenAIModel(modelId) {
+    return modelId.startsWith('gpt-');
+  }
+
   async getComparisonResults(models, prompt) {
     const results = await Promise.all(models.map(async (model) => {
-      if (model.id === 'openai') {
-        const { response, responseTime } = await this.getOpenAIResponse(prompt, model.version);
+      if (this.isOpenAIModel(model.id)) {
+        const { response, responseTime } = await this.getOpenAIResponse(prompt, model.version === 'Latest Version' ? model.id : model.version);
         return {
           modelId: model.id,
-          modelName: 'OpenAI',
-          version: model.version || 'gpt-3.5-turbo',
+          modelName: 'GPT',
+          version: model.version || model.id,
           response,
           latency: responseTime
         };

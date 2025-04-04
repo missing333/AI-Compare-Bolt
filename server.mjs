@@ -2,7 +2,7 @@ import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
 import Stripe from 'stripe';
-import aiService from './src/services/aiService.js';
+import aiService from './aiService.mjs';
 
 const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
 const app = express();
@@ -41,17 +41,23 @@ app.post('/api/create-payment-intent', async (req, res) => {
 
 app.post('/api/compare', async (req, res) => {
   try {
+    console.log('Received compare request:', req.body);
     const { models, prompt } = req.body;
     
     if (!models || !Array.isArray(models) || !prompt) {
       return res.status(400).json({ error: 'Invalid request data' });
     }
 
+    console.log('Making comparison with models:', models);
     const results = await aiService.getComparisonResults(models, prompt);
+    console.log('Comparison results:', results);
     res.status(200).json(results);
   } catch (error) {
     console.error('Comparison error:', error);
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ 
+      error: error.message,
+      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+    });
   }
 });
 
