@@ -12,7 +12,8 @@
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "start": "node server.js"
+    "start": "node functions/server.local.js",
+    "dev:server": "node functions/server.local.js"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.39.0",

@@ -3,16 +3,9 @@ import express from 'express';
 import cors from 'cors';
 import Stripe from 'stripe';
 import aiService from './aiService.js';
-import { createServer } from 'http';
-import { fileURLToPath } from 'url';
-import { dirname } from 'path';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
 
 const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
 const app = express();
-const port = process.env.PORT || 3000;
 
 // CORS configuration
 const corsOptions = {
@@ -80,14 +73,6 @@ app.post('/api/compare', async (req, res) => {
     });
   }
 });
-
-// For local development
-if (process.env.NODE_ENV !== 'production') {
-  const server = createServer(app);
-  server.listen(port, () => {
-    console.log(`Development server running on port ${port}`);
-  });
-}
 
 // For Netlify Functions
 export const handler = async (event, context) => {
