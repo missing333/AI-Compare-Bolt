@@ -97,7 +97,7 @@ class AIService {
       console.log('Making Gemini API call with model:', modelVersion);
       const startTime = Date.now();
       
-      const model = this.gemini.getGenerativeModel({ model: 'gemini-pro' }); // Always use gemini-pro for now
+      const model = this.gemini.getGenerativeModel({ model: modelVersion });
       
       // Send the message directly without creating a chat session
       const result = await model.generateContent(prompt);
@@ -190,7 +190,7 @@ class AIService {
           };
         } else if (this.isGeminiModel(model.id)) {
           console.log('Processing Gemini model:', model.id);
-          const version = 'gemini-pro'; // Always use gemini-pro for now
+          const version = model.version === 'Latest Version' ? 'gemini-2.0-flash-lite-001' : model.version;
           console.log('Using Gemini version:', version);
           const { response, responseTime } = await this.getGeminiResponse(prompt, version);
           return {
