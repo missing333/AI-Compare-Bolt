@@ -16,6 +16,10 @@ class AIService {
     if (!process.env.GOOGLE_API_KEY) {
       throw new Error('GOOGLE_API_KEY is not set in environment variables');
     }
+
+    if (!process.env.PERPLEXITY_API_KEY) {
+      throw new Error('PERPLEXITY_API_KEY is not set in environment variables');
+    }
     
     this.openai = new OpenAI({
       apiKey: process.env.OPENAI_API_KEY
@@ -158,6 +162,62 @@ class AIService {
     return normalizedId.includes('grok');
   }
 
+  async getPerplexityResponse(prompt, modelVersion = 'sonar-pro') {
+    try {
+      console.log('Making Perplexity API call with model:', modelVersion);
+      const startTime = Date.now();
+      
+      const response = await fetch('https://api.perplexity.ai/chat/completions', {
+        method: 'POST',
+        headers: {
+          'accept': 'application/json',
+          'content-type': 'application/json',
+          'Authorization': `Bearer ${process.env.PERPLEXITY_API_KEY}`
+        },
+        body: JSON.stringify({
+          model: modelVersion,
+          messages: [
+            { role: 'system', content: 'Be precise and concise.' },
+            { role: 'user', content: prompt }
+          ]
+        })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        console.error('Perplexity API error response:', {
+          status: response.status,
+          statusText: response.statusText,
+          errorData
+        });
+        throw new Error(`Perplexity API error: ${response.statusText} - ${JSON.stringify(errorData)}`);
+      }
+
+      const data = await response.json();
+      console.log('Perplexity API response:', data);
+      
+      if (!data.choices || !data.choices[0] || !data.choices[0].message) {
+        throw new Error('Invalid response format from Perplexity API');
+      }
+
+      const responseTime = Number(((Date.now() - startTime) / 1000).toFixed(2));
+      
+      return {
+        response: data.choices[0].message.content,
+        responseTime
+      };
+    } catch (error) {
+      console.error('Perplexity API error:', error);
+      throw new Error(`Perplexity API error: ${error.message}`);
+    }
+  }
+
+  isPerplexityModel(modelId) {
+    const normalizedId = modelId.toLowerCase();
+    console.log('Checking if model is Perplexity:', modelId, 'Normalized:', normalizedId);
+    return normalizedId.includes('pplx') || normalizedId.includes('sonar');
+  }
+
   async getComparisonResults(models, prompt) {
     try {
       console.log('Processing models:', JSON.stringify(models, null, 2));
@@ -200,21 +260,19 @@ class AIService {
             response,
             latency: responseTime
           };
-        } 
-        // else if (this.isGrokModel(model.id)) {
-        //   console.log('Processing Grok model:', model.id);
-        //   const version = model.version === 'Latest Version' ? 'grok-1' : model.version;
-        //   console.log('Using Grok version:', version);
-        //   const { response, responseTime } = await this.getGrokResponse(prompt, version);
-        //   return {
-        //     modelId: model.id,
-        //     modelName: 'Grok',
-        //     version: version,
-        //     response,
-        //     latency: responseTime
-        //   };
-        // }
-         else {
+        } else if (this.isPerplexityModel(model.id)) {
+          console.log('Processing Perplexity model:', model.id);
+          const version = model.version === 'Latest Version' ? 'pplx-7b-online' : model.version;
+          console.log('Using Perplexity version:', version);
+          const { response, responseTime } = await this.getPerplexityResponse(prompt, version);
+          return {
+            modelId: model.id,
+            modelName: 'Perplexity',
+            version: version,
+            response,
+            latency: responseTime
+          };
+        } else {
           console.log('Model not recognized, using mock response:', model.id);
           const modelName = model.id.split('-')
             .map(word => word.charAt(0).toUpperCase() + word.slice(1))

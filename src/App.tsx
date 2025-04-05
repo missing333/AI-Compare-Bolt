@@ -17,7 +17,31 @@ const API_URL = import.meta.env.PROD
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
 
 function App() {
-  const [selectedModels, setSelectedModels] = useState<SelectedModelInstance[]>([]);
+  const [selectedModels, setSelectedModels] = useState<SelectedModelInstance[]>(() => {
+    // Initialize with GPT-4 and Claude pre-selected
+    const gpt4 = AI_MODELS.find(m => m.id === 'gpt-4');
+    const claude = AI_MODELS.find(m => m.id === 'claude');
+    
+    const initialModels: SelectedModelInstance[] = [];
+    
+    if (gpt4) {
+      initialModels.push({
+        instanceId: `gpt-4-${Date.now()}`,
+        modelId: 'gpt-4',
+        version: gpt4.versions[0]
+      });
+    }
+    
+    if (claude) {
+      initialModels.push({
+        instanceId: `claude-${Date.now()}`,
+        modelId: 'claude',
+        version: claude.versions[0]
+      });
+    }
+    
+    return initialModels;
+  });
   const [prompt, setPrompt] = useState('');
   const [results, setResults] = useState<ComparisonResult[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -93,11 +117,6 @@ function App() {
               onModelRemove={handleModelRemove}
               onVersionChange={handleVersionChange}
             />
-            {selectedModels.length > 0 && (
-              <p className="text-center mt-4 text-gray-600">
-                Total cost: ${(selectedModels.length * 0.5).toFixed(2)} ({selectedModels.length} model{selectedModels.length !== 1 ? 's' : ''})
-              </p>
-            )}
           </div>
 
           <div>
@@ -105,9 +124,19 @@ function App() {
             <PromptInput
               prompt={prompt}
               onPromptChange={setPrompt}
-              onSubmit={handleCompare}
               isLoading={isLoading}
             />
+            <div className="mt-4 flex justify-center">
+              <button
+                onClick={handleCompare}
+                disabled={isLoading}
+                className={`inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white ${
+                  isLoading ? 'bg-gray-400' : 'bg-blue-600 hover:bg-blue-700'
+                }`}
+              >
+                {isLoading ? 'Processing...' : 'Compare'}
+              </button>
+            </div>
           </div>
 
           <div>
