@@ -215,7 +215,7 @@ class AIService {
   isPerplexityModel(modelId) {
     const normalizedId = modelId.toLowerCase();
     console.log('Checking if model is Perplexity:', modelId, 'Normalized:', normalizedId);
-    return normalizedId.includes('pplx') || normalizedId.includes('sonar');
+    return normalizedId.includes('pplx') || normalizedId.includes('sonar') || normalizedId === 'perplexity';
   }
 
   async getComparisonResults(models, prompt) {
@@ -262,7 +262,7 @@ class AIService {
           };
         } else if (this.isPerplexityModel(model.id)) {
           console.log('Processing Perplexity model:', model.id);
-          const version = model.version === 'Latest Version' ? 'pplx-7b-online' : model.version;
+          const version = model.version === 'Latest Version' ? 'sonar-pro' : model.version;
           console.log('Using Perplexity version:', version);
           const { response, responseTime } = await this.getPerplexityResponse(prompt, version);
           return {
