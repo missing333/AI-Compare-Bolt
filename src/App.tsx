@@ -207,8 +207,11 @@ function App() {
     setShowLoadingModal(true);
     setIsLoading(true);
     
+    const apiEndpoint = `${API_URL}/compare`;
+    console.log('Fetching comparison results from:', apiEndpoint);
+    
     try {
-      const response = await fetch(`${API_URL}/compare`, {
+      const response = await fetch(apiEndpoint, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -220,18 +223,28 @@ function App() {
           })),
           prompt,
         }),
+        credentials: 'same-origin'
       });
 
       if (!response.ok) {
-        throw new Error('Failed to fetch AI comparison results');
+        const errorText = await response.text();
+        console.error('Comparison API error:', {
+          status: response.status,
+          statusText: response.statusText,
+          url: apiEndpoint,
+          errorText
+        });
+        throw new Error(`Comparison API error: ${response.status} ${response.statusText}`);
       }
 
       const results = await response.json();
+      console.log('Comparison results received successfully');
       setResults(results);
       toast.success('Comparison complete!');
     } catch (err: any) {
+      console.error('Comparison error details:', err);
+      console.error('Error stack:', err.stack);
       toast.error(err.message || 'Failed to process AI comparison');
-      console.error('AI comparison error:', err);
     } finally {
       setIsLoading(false);
       setShowLoadingModal(false);
