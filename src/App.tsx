@@ -41,56 +41,64 @@ function MainContent({
   results 
 }: MainContentProps) {
   return (
-    <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 flex-grow w-full">
-      <div className="text-center mb-16">
-        <h1 className="text-4xl font-bold text-gray-900 mb-6 tracking-tight">
-          PromptCurious: Compare AI Outputs Side-by-Side
-        </h1>
-        <p className="text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
-          Enter one prompt and see how different AI models respond. Compare ChatGPT, Claude,
-          Gemini, and more in real-time.
-        </p>
-      </div>
-
-      <div className="space-y-12">
-        <div className="rounded-xl shadow-sm p-6 border border-gray-100">
-          <h2 className="text-2xl font-semibold text-gray-900 mb-6">1. Select AI Models to Compare</h2>
-          <ModelSelector
-            selectedModels={selectedModels}
-            onModelSelect={handleModelSelect}
-            onModelRemove={handleModelRemove}
-            onVersionChange={handleVersionChange}
-          />
+    <div className="flex flex-col items-center w-full py-12">
+      {/* Regular width container for header and non-results sections */}
+      <div className="max-w-4xl w-full px-4 sm:px-6 lg:px-8">
+        <div className="text-center mb-16">
+          <h1 className="text-4xl font-bold text-gray-900 mb-6 tracking-tight">
+            PromptCurious: Compare AI Outputs Side-by-Side
+          </h1>
+          <p className="text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
+            Enter one prompt and see how different AI models respond. Compare ChatGPT, Claude,
+            Gemini, and more in real-time.
+          </p>
         </div>
 
-        <div className="rounded-xl shadow-sm p-6 border border-gray-100">
-          <h2 className="text-2xl font-semibold text-gray-900 mb-6">2. Enter Your Prompt</h2>
-          <PromptInput
-            prompt={prompt}
-            onPromptChange={setPrompt}
-            isLoading={isLoading}
-          />
-          <div className="mt-6 flex justify-center">
-            <button
-              onClick={handleCompare}
-              disabled={isLoading}
-              className={`inline-flex items-center px-8 py-4 border border-transparent text-lg font-medium rounded-xl text-white shadow-sm transition-all duration-200 ${
-                isLoading 
-                  ? 'bg-gray-400 cursor-not-allowed' 
-                  : 'bg-blue-600 hover:bg-blue-700 hover:shadow-md transform hover:-translate-y-0.5'
-              }`}
-            >
-              {isLoading ? 'Processing...' : 'Compare'}
-            </button>
+        <div className="space-y-12">
+          <div className="rounded-xl shadow-sm p-6 border border-gray-100">
+            <h2 className="text-2xl font-semibold text-gray-900 mb-6">1. Select AI Models to Compare</h2>
+            <ModelSelector
+              selectedModels={selectedModels}
+              onModelSelect={handleModelSelect}
+              onModelRemove={handleModelRemove}
+              onVersionChange={handleVersionChange}
+            />
+          </div>
+
+          <div className="rounded-xl shadow-sm p-6 border border-gray-100">
+            <h2 className="text-2xl font-semibold text-gray-900 mb-6">2. Enter Your Prompt</h2>
+            <PromptInput
+              prompt={prompt}
+              onPromptChange={setPrompt}
+              isLoading={isLoading}
+            />
+            <div className="mt-6 flex justify-center">
+              <button
+                onClick={handleCompare}
+                disabled={isLoading}
+                className={`inline-flex items-center px-8 py-4 border border-transparent text-lg font-medium rounded-xl text-white shadow-sm transition-all duration-200 ${
+                  isLoading 
+                    ? 'bg-gray-400 cursor-not-allowed' 
+                    : 'bg-blue-600 hover:bg-blue-700 hover:shadow-md transform hover:-translate-y-0.5'
+                }`}
+              >
+                {isLoading ? 'Processing...' : 'Compare'}
+              </button>
+            </div>
           </div>
         </div>
+      </div>
 
-        <div className="rounded-xl shadow-sm p-6 border border-gray-100">
-          <h2 className="text-2xl font-semibold text-gray-900 mb-6">3. View Results</h2>
-          <ComparisonResults results={results} />
+      {/* Wider container (80%) for results section */}
+      <div className="w-full px-4 sm:px-6 lg:px-8 mt-12">
+        <div className="w-[80%] mx-auto">
+          <div className="rounded-xl shadow-sm p-6 border border-gray-100">
+            <h2 className="text-2xl font-semibold text-gray-900 mb-6">3. View Results</h2>
+            <ComparisonResults results={results} />
+          </div>
         </div>
       </div>
-    </main>
+    </div>
   );
 }
 
