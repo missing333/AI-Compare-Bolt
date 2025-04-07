@@ -54,7 +54,7 @@ function MainContent({
       </div>
 
       <div className="space-y-12">
-        <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+        <div className="rounded-xl shadow-sm p-6 border border-gray-100">
           <h2 className="text-2xl font-semibold text-gray-900 mb-6">1. Select AI Models to Compare</h2>
           <ModelSelector
             selectedModels={selectedModels}
@@ -64,7 +64,7 @@ function MainContent({
           />
         </div>
 
-        <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+        <div className="rounded-xl shadow-sm p-6 border border-gray-100">
           <h2 className="text-2xl font-semibold text-gray-900 mb-6">2. Enter Your Prompt</h2>
           <PromptInput
             prompt={prompt}
@@ -86,7 +86,7 @@ function MainContent({
           </div>
         </div>
 
-        <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+        <div className="rounded-xl shadow-sm p-6 border border-gray-100">
           <h2 className="text-2xl font-semibold text-gray-900 mb-6">3. View Results</h2>
           <ComparisonResults results={results} />
         </div>
@@ -209,7 +209,7 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
+    <div className="min-h-screen bg-gray-50 flex flex-col font-sans">
       <Toaster position="top-right" />
       <Header />
       
