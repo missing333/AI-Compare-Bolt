@@ -97,15 +97,18 @@ function MainContent({
 
 function App() {
   const [selectedModels, setSelectedModels] = useState<SelectedModelInstance[]>(() => {
-    // Initialize with GPT-4 and Claude pre-selected
+    // Initialize with GPT-4, Claude, Gemini, and Perplexity pre-selected
     const gpt4 = AI_MODELS.find(m => m.id === 'gpt-4');
     const claude = AI_MODELS.find(m => m.id === 'claude');
+    const gemini = AI_MODELS.find(m => m.id === 'gemini');
+    const perplexity = AI_MODELS.find(m => m.id === 'perplexity');
     
     const initialModels: SelectedModelInstance[] = [];
+    const now = Date.now();
     
     if (gpt4) {
       initialModels.push({
-        instanceId: `gpt-4-${Date.now()}`,
+        instanceId: `gpt-4-${now}`,
         modelId: 'gpt-4',
         version: gpt4.versions[0]
       });
@@ -113,9 +116,25 @@ function App() {
     
     if (claude) {
       initialModels.push({
-        instanceId: `claude-${Date.now()}`,
+        instanceId: `claude-${now}`,
         modelId: 'claude',
         version: claude.versions[0]
+      });
+    }
+
+    if (gemini) {
+      initialModels.push({
+        instanceId: `gemini-${now}`,
+        modelId: 'gemini',
+        version: gemini.versions[0]
+      });
+    }
+
+    if (perplexity) {
+      initialModels.push({
+        instanceId: `perplexity-${now}`,
+        modelId: 'perplexity',
+        version: perplexity.versions[0]
       });
     }
     
