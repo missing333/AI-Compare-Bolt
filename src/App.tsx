@@ -208,7 +208,7 @@ function App() {
     setIsLoading(true);
     
     try {
-      const response = await fetch(`${API_URL}/api/compare`, {
+      const response = await fetch(`${API_URL}/compare`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

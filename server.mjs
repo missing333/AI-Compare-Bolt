@@ -17,8 +17,8 @@ const port = process.env.PORT || 3000;
 // CORS configuration
 const corsOptions = {
   origin: process.env.NODE_ENV === 'production' 
-    ? ['https://promptcompare.netlify.app'] // Update this with your Netlify domain
-    : ['http://localhost:5173', 'http://localhost:3000'],
+    ? ['https://promptcompare.netlify.app', 'https://ai-compare-bolt.netlify.app', /.netlify\.app$/] // Allow all Netlify domains
+    : ['http://localhost:5173', 'http://localhost:3000', 'http://localhost:8888'],
   methods: ['GET', 'POST'],
   credentials: true,
 };
@@ -96,7 +96,19 @@ export const handler = async (event, context) => {
     return { statusCode: 405, body: 'Method Not Allowed' };
   }
 
-  const path = event.path.replace('/.netlify/functions/server', '');
+  // Normalize path handling for both direct API calls and those coming through Netlify redirects
+  let path = event.path;
+  console.log('Original request path:', path);
+  
+  // Remove the /.netlify/functions/server prefix if present
+  path = path.replace('/.netlify/functions/server', '');
+  
+  // Ensure the path starts with /api/
+  if (!path.startsWith('/api/') && path !== '/api') {
+    path = `/api${path.startsWith('/') ? path : `/${path}`}`;
+  }
+  
+  console.log('Normalized request path:', path);
   
   // Parse body for POST requests
   let body;
@@ -120,6 +132,14 @@ export const handler = async (event, context) => {
           return { statusCode: 405, body: 'Method Not Allowed' };
         }
         const { models, prompt } = body;
+        
+        if (!models || !Array.isArray(models)) {
+          return { 
+            statusCode: 400, 
+            body: JSON.stringify({ error: 'Invalid models data' })
+          };
+        }
+        
         const amount = models.length * 50;
         const paymentIntent = await stripe.paymentIntents.create({
           amount,
@@ -135,6 +155,14 @@ export const handler = async (event, context) => {
         if (event.httpMethod !== 'POST') {
           return { statusCode: 405, body: 'Method Not Allowed' };
         }
+        
+        if (!body.models || !Array.isArray(body.models) || !body.prompt) {
+          return { 
+            statusCode: 400, 
+            body: JSON.stringify({ error: 'Invalid request data' })
+          };
+        }
+        
         const results = await aiService.getComparisonResults(body.models, body.prompt);
         return {
           statusCode: 200,
@@ -142,7 +170,11 @@ export const handler = async (event, context) => {
         };
 
       default:
-        return { statusCode: 404, body: 'Not Found' };
+        console.log('Path not found:', path);
+        return { 
+          statusCode: 404, 
+          body: JSON.stringify({ error: 'Not Found', path }) 
+        };
     }
   } catch (error) {
     console.error('Server error:', error);

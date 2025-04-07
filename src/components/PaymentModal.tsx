@@ -114,8 +114,9 @@ export function PaymentModal({ isOpen, onClose, selectedModels, prompt, onPaymen
 
     const createPaymentIntent = async () => {
       if (isOpen && selectedModels.length > 0) {
+        console.log('Attempting to create payment intent with URL:', `${API_URL}/create-payment-intent`);
         try {
-          const response = await fetch(`${API_URL}/api/create-payment-intent`, {
+          const response = await fetch(`${API_URL}/create-payment-intent`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -129,6 +130,16 @@ export function PaymentModal({ isOpen, onClose, selectedModels, prompt, onPaymen
             }),
           });
           
+          if (!response.ok) {
+            const errorText = await response.text();
+            console.error('Payment intent API error:', {
+              status: response.status,
+              statusText: response.statusText,
+              errorText
+            });
+            throw new Error(`Payment API error: ${response.status} ${response.statusText}`);
+          }
+          
           const data = await response.json();
           
           if (!isMounted) return;
@@ -140,6 +151,7 @@ export function PaymentModal({ isOpen, onClose, selectedModels, prompt, onPaymen
           setClientSecret(data.clientSecret);
         } catch (error: any) {
           if (!isMounted) return;
+          console.error('Payment intent error details:', error);
           toast.error(error.message || 'Failed to initialize payment');
           onClose();
         }
