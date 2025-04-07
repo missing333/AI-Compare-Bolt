@@ -4,6 +4,7 @@ import { ModelSelector } from './components/ModelSelector';
 import { PromptInput } from './components/PromptInput';
 import { ComparisonResults } from './components/ComparisonResults';
 import { PaymentModal } from './components/PaymentModal';
+import { LoadingModal } from './components/LoadingModal';
 import { PricingPage } from './components/PricingPage';
 import { FAQPage } from './components/FAQPage';
 import { Footer } from './components/Footer';
@@ -144,6 +145,7 @@ function App() {
   const [results, setResults] = useState<ComparisonResult[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [showPayment, setShowPayment] = useState(false);
+  const [showLoadingModal, setShowLoadingModal] = useState(false);
   const [currentPage, setCurrentPage] = useState('main');
 
   useEffect(() => {
@@ -202,10 +204,48 @@ function App() {
     setShowPayment(true);
   };
 
-  const handlePaymentSuccess = (results: ComparisonResult[]) => {
-    setResults(results);
+  const fetchComparisonResults = async () => {
     setShowPayment(false);
-    setIsLoading(false);
+    setShowLoadingModal(true);
+    setIsLoading(true);
+    
+    try {
+      const response = await fetch(`${API_URL}/api/compare`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          models: selectedModels.map(model => ({
+            id: model.modelId,
+            version: model.version
+          })),
+          prompt,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch AI comparison results');
+      }
+
+      const results = await response.json();
+      setResults(results);
+      toast.success('Comparison complete!');
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to process AI comparison');
+      console.error('AI comparison error:', err);
+    } finally {
+      setIsLoading(false);
+      setShowLoadingModal(false);
+    }
+  };
+
+  const handlePaymentSuccess = () => {
+    fetchComparisonResults();
+  };
+
+  const handlePaymentError = () => {
+    // Keep payment modal open for retry
   };
 
   return (
@@ -239,7 +279,10 @@ function App() {
         selectedModels={selectedModels}
         prompt={prompt}
         onPaymentSuccess={handlePaymentSuccess}
+        onPaymentError={handlePaymentError}
       />
+
+      <LoadingModal isOpen={showLoadingModal} />
     </div>
   );
 }

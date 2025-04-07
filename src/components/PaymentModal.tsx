@@ -14,12 +14,13 @@ interface PaymentModalProps {
   onClose: () => void;
   selectedModels: SelectedModelInstance[];
   prompt: string;
-  onPaymentSuccess: (results: ComparisonResult[]) => void;
+  onPaymentSuccess: () => void;
+  onPaymentError: () => void;
 }
 
 const PRICE_PER_MODEL = 0.5; // $0.50 per model
 
-function CheckoutForm({ selectedModels, prompt, onPaymentSuccess, onClose }: Omit<PaymentModalProps, 'isOpen'>) {
+function CheckoutForm({ selectedModels, prompt, onPaymentSuccess, onPaymentError, onClose }: Omit<PaymentModalProps, 'isOpen'>) {
   const stripe = useStripe();
   const elements = useElements();
   const [isProcessing, setIsProcessing] = useState(false);
@@ -46,39 +47,15 @@ function CheckoutForm({ selectedModels, prompt, onPaymentSuccess, onClose }: Omi
       if (error) {
         toast.error(error.message || 'Payment failed');
         setIsProcessing(false);
+        onPaymentError();
       } else {
-        // Payment successful, now call the AI endpoints
-        try {
-          const response = await fetch(`${API_URL}/api/compare`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              models: selectedModels.map(model => ({
-                id: model.modelId,
-                version: model.version
-              })),
-              prompt,
-            }),
-          });
-
-          if (!response.ok) {
-            throw new Error('Failed to fetch AI comparison results');
-          }
-
-          const results = await response.json();
-          toast.success('Payment successful! Processing your comparison...');
-          onPaymentSuccess(results);
-          onClose();
-        } catch (err: any) {
-          toast.error(err.message || 'Failed to process AI comparison');
-          console.error('AI comparison error:', err);
-        }
+        // Payment successful, notify parent component
+        toast.success('Payment successful! Preparing to process your comparison...');
+        onPaymentSuccess();
       }
     } catch (err: any) {
       toast.error(err.message || 'An unexpected error occurred');
-    } finally {
+      onPaymentError();
       setIsProcessing(false);
     }
   };
@@ -121,7 +98,7 @@ function CheckoutForm({ selectedModels, prompt, onPaymentSuccess, onClose }: Omi
   );
 }
 
-export function PaymentModal({ isOpen, onClose, selectedModels, prompt, onPaymentSuccess }: PaymentModalProps) {
+export function PaymentModal({ isOpen, onClose, selectedModels, prompt, onPaymentSuccess, onPaymentError }: PaymentModalProps) {
   const [clientSecret, setClientSecret] = useState<string | null>(null);
   const [key, setKey] = useState(0); // Add a key to force re-render of Elements
 
@@ -196,6 +173,7 @@ export function PaymentModal({ isOpen, onClose, selectedModels, prompt, onPaymen
               selectedModels={selectedModels}
               prompt={prompt}
               onPaymentSuccess={onPaymentSuccess}
+              onPaymentError={onPaymentError}
               onClose={onClose}
             />
           </Elements>
