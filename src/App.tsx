@@ -4,6 +4,8 @@ import { ModelSelector } from './components/ModelSelector';
 import { PromptInput } from './components/PromptInput';
 import { ComparisonResults } from './components/ComparisonResults';
 import { PaymentModal } from './components/PaymentModal';
+import { PricingPage } from './components/PricingPage';
+import { FAQPage } from './components/FAQPage';
 import { Footer } from './components/Footer';
 import type { ComparisonResult, SelectedModelInstance } from './types';
 import { Toaster, toast } from 'react-hot-toast';
@@ -15,6 +17,83 @@ const API_URL = import.meta.env.PROD
   ? '/.netlify/functions/server'  // Production API endpoint
   : 'http://localhost:3000';      // Development API endpoint
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
+
+interface MainContentProps {
+  selectedModels: SelectedModelInstance[];
+  handleModelSelect: (modelId: string) => void;
+  handleModelRemove: (instanceId: string) => void;
+  handleVersionChange: (instanceId: string, version: string) => void;
+  prompt: string;
+  setPrompt: (prompt: string) => void;
+  handleCompare: () => void;
+  isLoading: boolean;
+  results: ComparisonResult[];
+}
+
+function MainContent({ 
+  selectedModels, 
+  handleModelSelect, 
+  handleModelRemove, 
+  handleVersionChange, 
+  prompt, 
+  setPrompt, 
+  handleCompare, 
+  isLoading, 
+  results 
+}: MainContentProps) {
+  return (
+    <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 flex-grow w-full">
+      <div className="text-center mb-16">
+        <h1 className="text-4xl font-bold text-gray-900 mb-6 tracking-tight">
+          Compare AI Outputs Side-by-Side
+        </h1>
+        <p className="text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
+          Enter one prompt and see how different AI models respond. Compare ChatGPT, Claude,
+          Gemini, and more in real-time.
+        </p>
+      </div>
+
+      <div className="space-y-12">
+        <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+          <h2 className="text-2xl font-semibold text-gray-900 mb-6">1. Select AI Models to Compare</h2>
+          <ModelSelector
+            selectedModels={selectedModels}
+            onModelSelect={handleModelSelect}
+            onModelRemove={handleModelRemove}
+            onVersionChange={handleVersionChange}
+          />
+        </div>
+
+        <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+          <h2 className="text-2xl font-semibold text-gray-900 mb-6">2. Enter Your Prompt</h2>
+          <PromptInput
+            prompt={prompt}
+            onPromptChange={setPrompt}
+            isLoading={isLoading}
+          />
+          <div className="mt-6 flex justify-center">
+            <button
+              onClick={handleCompare}
+              disabled={isLoading}
+              className={`inline-flex items-center px-8 py-4 border border-transparent text-lg font-medium rounded-xl text-white shadow-sm transition-all duration-200 ${
+                isLoading 
+                  ? 'bg-gray-400 cursor-not-allowed' 
+                  : 'bg-blue-600 hover:bg-blue-700 hover:shadow-md transform hover:-translate-y-0.5'
+              }`}
+            >
+              {isLoading ? 'Processing...' : 'Compare'}
+            </button>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+          <h2 className="text-2xl font-semibold text-gray-900 mb-6">3. View Results</h2>
+          <ComparisonResults results={results} />
+        </div>
+      </div>
+    </main>
+  );
+}
 
 function App() {
   const [selectedModels, setSelectedModels] = useState<SelectedModelInstance[]>(() => {
@@ -46,6 +125,24 @@ function App() {
   const [results, setResults] = useState<ComparisonResult[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [showPayment, setShowPayment] = useState(false);
+  const [currentPage, setCurrentPage] = useState('main');
+
+  useEffect(() => {
+    const handleHashChange = () => {
+      if (window.location.hash === '#pricing') {
+        setCurrentPage('pricing');
+      } else if (window.location.hash === '#faq') {
+        setCurrentPage('faq');
+      } else {
+        setCurrentPage('main');
+      }
+    };
+
+    window.addEventListener('hashchange', handleHashChange);
+    handleHashChange(); // Handle initial hash
+
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, []);
 
   const handleModelSelect = async (modelId: string) => {
     const model = AI_MODELS.find(m => m.id === modelId);
@@ -97,54 +194,23 @@ function App() {
       <Toaster position="top-right" />
       <Header />
       
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 flex-grow">
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">
-            Compare AI Outputs Side-by-Side
-          </h1>
-          <p className="text-xl text-gray-600">
-            Enter one prompt and see how different AI models respond. Compare ChatGPT, Claude,
-            Gemini, Deepseek and more in real-time.
-          </p>
-        </div>
-
-        <div className="space-y-8">
-          <div>
-            <h2 className="text-xl font-semibold mb-4">1. Select AI Models to Compare</h2>
-            <ModelSelector
-              selectedModels={selectedModels}
-              onModelSelect={handleModelSelect}
-              onModelRemove={handleModelRemove}
-              onVersionChange={handleVersionChange}
-            />
-          </div>
-
-          <div>
-            <h2 className="text-xl font-semibold mb-4">2. Enter Your Prompt</h2>
-            <PromptInput
-              prompt={prompt}
-              onPromptChange={setPrompt}
-              isLoading={isLoading}
-            />
-            <div className="mt-4 flex justify-center">
-              <button
-                onClick={handleCompare}
-                disabled={isLoading}
-                className={`inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white ${
-                  isLoading ? 'bg-gray-400' : 'bg-blue-600 hover:bg-blue-700'
-                }`}
-              >
-                {isLoading ? 'Processing...' : 'Compare'}
-              </button>
-            </div>
-          </div>
-
-          <div>
-            <h2 className="text-xl font-semibold mb-4">3. View Results</h2>
-            <ComparisonResults results={results} />
-          </div>
-        </div>
-      </main>
+      {currentPage === 'main' ? (
+        <MainContent 
+          selectedModels={selectedModels}
+          handleModelSelect={handleModelSelect}
+          handleModelRemove={handleModelRemove}
+          handleVersionChange={handleVersionChange}
+          prompt={prompt}
+          setPrompt={setPrompt}
+          handleCompare={handleCompare}
+          isLoading={isLoading}
+          results={results}
+        />
+      ) : currentPage === 'pricing' ? (
+        <PricingPage />
+      ) : (
+        <FAQPage />
+      )}
 
       <Footer />
 
