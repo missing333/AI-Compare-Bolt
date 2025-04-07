@@ -3,10 +3,8 @@ import { loadStripe } from '@stripe/stripe-js';
 import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import type { SelectedModelInstance, ComparisonResult } from '../types';
 import { toast } from 'react-hot-toast';
+import { API_URL } from '../config/api';
 
-const API_URL = import.meta.env.PROD 
-  ? '/.netlify/functions/server'  // Production API endpoint
-  : 'http://localhost:3000';      // Development API endpoint
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
 
 interface PaymentModalProps {

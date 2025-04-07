@@ -12,11 +12,9 @@ import type { ComparisonResult, SelectedModelInstance } from './types';
 import { Toaster, toast } from 'react-hot-toast';
 import { AI_MODELS } from './data/models';
 import { loadStripe } from '@stripe/stripe-js';
+import { API_URL } from './config/api';
 
 const STRIPE_PRODUCT_ID = 'prod_S45beS0xV3JGII';
-const API_URL = import.meta.env.PROD 
-  ? '/.netlify/functions/server'  // Production API endpoint
-  : 'http://localhost:3000';      // Development API endpoint
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
 
 interface MainContentProps {
