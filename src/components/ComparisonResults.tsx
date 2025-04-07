@@ -1,6 +1,7 @@
 import React from 'react';
 import { Clock } from 'lucide-react';
 import type { ComparisonResult } from '../types';
+import { ModelIcon } from './ModelIcon';
 
 interface ComparisonResultsProps {
   results: ComparisonResult[];
@@ -15,9 +16,12 @@ export function ComparisonResults({ results }: ComparisonResultsProps) {
         <div key={result.modelId} className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
           <div className="bg-gray-50 border-b border-gray-200 px-6 py-4">
             <div className="flex justify-between items-center">
-              <div>
-                <h3 className="text-lg font-medium text-gray-900">{result.modelName}</h3>
-                <p className="text-sm text-gray-500">{result.version}</p>
+              <div className="flex items-center">
+                <ModelIcon modelId={result.modelId} className="h-6 w-6 mr-3" />
+                <div>
+                  <h3 className="text-lg font-medium text-gray-900">{result.modelName}</h3>
+                  <p className="text-sm text-gray-500">{result.version}</p>
+                </div>
               </div>
               <div className="flex items-center text-sm text-gray-500">
                 <Clock className="h-4 w-4 mr-1" />
