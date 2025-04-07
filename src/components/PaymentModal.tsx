@@ -3,10 +3,8 @@ import { loadStripe } from '@stripe/stripe-js';
 import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import type { SelectedModelInstance, ComparisonResult } from '../types';
 import { toast } from 'react-hot-toast';
+import { API_URL } from '../config/api';
 
-const API_URL = import.meta.env.PROD 
-  ? '/.netlify/functions/server'  // Production API endpoint
-  : 'http://localhost:3000';      // Development API endpoint
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
 
 interface PaymentModalProps {
@@ -14,12 +12,13 @@ interface PaymentModalProps {
   onClose: () => void;
   selectedModels: SelectedModelInstance[];
   prompt: string;
-  onPaymentSuccess: (results: ComparisonResult[]) => void;
+  onPaymentSuccess: () => void;
+  onPaymentError: () => void;
 }
 
 const PRICE_PER_MODEL = 0.5; // $0.50 per model
 
-function CheckoutForm({ selectedModels, prompt, onPaymentSuccess, onClose }: Omit<PaymentModalProps, 'isOpen'>) {
+function CheckoutForm({ selectedModels, prompt, onPaymentSuccess, onPaymentError, onClose }: Omit<PaymentModalProps, 'isOpen'>) {
   const stripe = useStripe();
   const elements = useElements();
   const [isProcessing, setIsProcessing] = useState(false);
@@ -46,39 +45,15 @@ function CheckoutForm({ selectedModels, prompt, onPaymentSuccess, onClose }: Omi
       if (error) {
         toast.error(error.message || 'Payment failed');
         setIsProcessing(false);
+        onPaymentError();
       } else {
-        // Payment successful, now call the AI endpoints
-        try {
-          const response = await fetch(`${API_URL}/api/compare`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              models: selectedModels.map(model => ({
-                id: model.modelId,
-                version: model.version
-              })),
-              prompt,
-            }),
-          });
-
-          if (!response.ok) {
-            throw new Error('Failed to fetch AI comparison results');
-          }
-
-          const results = await response.json();
-          toast.success('Payment successful! Processing your comparison...');
-          onPaymentSuccess(results);
-          onClose();
-        } catch (err: any) {
-          toast.error(err.message || 'Failed to process AI comparison');
-          console.error('AI comparison error:', err);
-        }
+        // Payment successful, notify parent component
+        toast.success('Payment successful! Preparing to process your comparison...');
+        onPaymentSuccess();
       }
     } catch (err: any) {
       toast.error(err.message || 'An unexpected error occurred');
-    } finally {
+      onPaymentError();
       setIsProcessing(false);
     }
   };
@@ -121,7 +96,7 @@ function CheckoutForm({ selectedModels, prompt, onPaymentSuccess, onClose }: Omi
   );
 }
 
-export function PaymentModal({ isOpen, onClose, selectedModels, prompt, onPaymentSuccess }: PaymentModalProps) {
+export function PaymentModal({ isOpen, onClose, selectedModels, prompt, onPaymentSuccess, onPaymentError }: PaymentModalProps) {
   const [clientSecret, setClientSecret] = useState<string | null>(null);
   const [key, setKey] = useState(0); // Add a key to force re-render of Elements
 
@@ -139,8 +114,12 @@ export function PaymentModal({ isOpen, onClose, selectedModels, prompt, onPaymen
 
     const createPaymentIntent = async () => {
       if (isOpen && selectedModels.length > 0) {
+        const apiEndpoint = `${API_URL}/create-payment-intent`;
+        console.log('Attempting to create payment intent with URL:', apiEndpoint);
+        console.log('Using selected models:', selectedModels);
+        
         try {
-          const response = await fetch(`${API_URL}/api/create-payment-intent`, {
+          const response = await fetch(apiEndpoint, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -152,9 +131,22 @@ export function PaymentModal({ isOpen, onClose, selectedModels, prompt, onPaymen
               })),
               prompt
             }),
+            credentials: 'same-origin'
           });
           
+          if (!response.ok) {
+            const errorText = await response.text();
+            console.error('Payment intent API error:', {
+              status: response.status,
+              statusText: response.statusText,
+              url: apiEndpoint,
+              errorText
+            });
+            throw new Error(`Payment API error: ${response.status} ${response.statusText}`);
+          }
+          
           const data = await response.json();
+          console.log('Payment intent created successfully');
           
           if (!isMounted) return;
           
@@ -165,6 +157,8 @@ export function PaymentModal({ isOpen, onClose, selectedModels, prompt, onPaymen
           setClientSecret(data.clientSecret);
         } catch (error: any) {
           if (!isMounted) return;
+          console.error('Payment intent error details:', error);
+          console.error('Error stack:', error.stack);
           toast.error(error.message || 'Failed to initialize payment');
           onClose();
         }
@@ -196,6 +190,7 @@ export function PaymentModal({ isOpen, onClose, selectedModels, prompt, onPaymen
               selectedModels={selectedModels}
               prompt={prompt}
               onPaymentSuccess={onPaymentSuccess}
+              onPaymentError={onPaymentError}
               onClose={onClose}
             />
           </Elements>

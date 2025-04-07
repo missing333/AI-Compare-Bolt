@@ -4,6 +4,7 @@ import { ModelSelector } from './components/ModelSelector';
 import { PromptInput } from './components/PromptInput';
 import { ComparisonResults } from './components/ComparisonResults';
 import { PaymentModal } from './components/PaymentModal';
+import { LoadingModal } from './components/LoadingModal';
 import { PricingPage } from './components/PricingPage';
 import { FAQPage } from './components/FAQPage';
 import { Footer } from './components/Footer';
@@ -11,11 +12,9 @@ import type { ComparisonResult, SelectedModelInstance } from './types';
 import { Toaster, toast } from 'react-hot-toast';
 import { AI_MODELS } from './data/models';
 import { loadStripe } from '@stripe/stripe-js';
+import { API_URL } from './config/api';
 
 const STRIPE_PRODUCT_ID = 'prod_S45beS0xV3JGII';
-const API_URL = import.meta.env.PROD 
-  ? '/.netlify/functions/server'  // Production API endpoint
-  : 'http://localhost:3000';      // Development API endpoint
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
 
 interface MainContentProps {
@@ -54,7 +53,7 @@ function MainContent({
       </div>
 
       <div className="space-y-12">
-        <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+        <div className="rounded-xl shadow-sm p-6 border border-gray-100">
           <h2 className="text-2xl font-semibold text-gray-900 mb-6">1. Select AI Models to Compare</h2>
           <ModelSelector
             selectedModels={selectedModels}
@@ -64,7 +63,7 @@ function MainContent({
           />
         </div>
 
-        <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+        <div className="rounded-xl shadow-sm p-6 border border-gray-100">
           <h2 className="text-2xl font-semibold text-gray-900 mb-6">2. Enter Your Prompt</h2>
           <PromptInput
             prompt={prompt}
@@ -86,7 +85,7 @@ function MainContent({
           </div>
         </div>
 
-        <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+        <div className="rounded-xl shadow-sm p-6 border border-gray-100">
           <h2 className="text-2xl font-semibold text-gray-900 mb-6">3. View Results</h2>
           <ComparisonResults results={results} />
         </div>
@@ -97,15 +96,18 @@ function MainContent({
 
 function App() {
   const [selectedModels, setSelectedModels] = useState<SelectedModelInstance[]>(() => {
-    // Initialize with GPT-4 and Claude pre-selected
+    // Initialize with GPT-4, Claude, Gemini, and Perplexity pre-selected
     const gpt4 = AI_MODELS.find(m => m.id === 'gpt-4');
     const claude = AI_MODELS.find(m => m.id === 'claude');
+    const gemini = AI_MODELS.find(m => m.id === 'gemini');
+    const perplexity = AI_MODELS.find(m => m.id === 'perplexity');
     
     const initialModels: SelectedModelInstance[] = [];
+    const now = Date.now();
     
     if (gpt4) {
       initialModels.push({
-        instanceId: `gpt-4-${Date.now()}`,
+        instanceId: `gpt-4-${now}`,
         modelId: 'gpt-4',
         version: gpt4.versions[0]
       });
@@ -113,9 +115,25 @@ function App() {
     
     if (claude) {
       initialModels.push({
-        instanceId: `claude-${Date.now()}`,
+        instanceId: `claude-${now}`,
         modelId: 'claude',
         version: claude.versions[0]
+      });
+    }
+
+    if (gemini) {
+      initialModels.push({
+        instanceId: `gemini-${now}`,
+        modelId: 'gemini',
+        version: gemini.versions[0]
+      });
+    }
+
+    if (perplexity) {
+      initialModels.push({
+        instanceId: `perplexity-${now}`,
+        modelId: 'perplexity',
+        version: perplexity.versions[0]
       });
     }
     
@@ -125,6 +143,7 @@ function App() {
   const [results, setResults] = useState<ComparisonResult[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [showPayment, setShowPayment] = useState(false);
+  const [showLoadingModal, setShowLoadingModal] = useState(false);
   const [currentPage, setCurrentPage] = useState('main');
 
   useEffect(() => {
@@ -183,14 +202,65 @@ function App() {
     setShowPayment(true);
   };
 
-  const handlePaymentSuccess = (results: ComparisonResult[]) => {
-    setResults(results);
+  const fetchComparisonResults = async () => {
     setShowPayment(false);
-    setIsLoading(false);
+    setShowLoadingModal(true);
+    setIsLoading(true);
+    
+    const apiEndpoint = `${API_URL}/compare`;
+    console.log('Fetching comparison results from:', apiEndpoint);
+    
+    try {
+      const response = await fetch(apiEndpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          models: selectedModels.map(model => ({
+            id: model.modelId,
+            version: model.version
+          })),
+          prompt,
+        }),
+        credentials: 'same-origin'
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Comparison API error:', {
+          status: response.status,
+          statusText: response.statusText,
+          url: apiEndpoint,
+          errorText
+        });
+        throw new Error(`Comparison API error: ${response.status} ${response.statusText}`);
+      }
+
+      const results = await response.json();
+      console.log('Comparison results received successfully');
+      setResults(results);
+      toast.success('Comparison complete!');
+    } catch (err: any) {
+      console.error('Comparison error details:', err);
+      console.error('Error stack:', err.stack);
+      toast.error(err.message || 'Failed to process AI comparison');
+    } finally {
+      setIsLoading(false);
+      setShowLoadingModal(false);
+    }
+  };
+
+  const handlePaymentSuccess = () => {
+    fetchComparisonResults();
+  };
+
+  const handlePaymentError = () => {
+    // Keep payment modal open for retry
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
+    <div className="min-h-screen bg-gray-50 flex flex-col font-sans">
       <Toaster position="top-right" />
       <Header />
       
@@ -220,7 +290,10 @@ function App() {
         selectedModels={selectedModels}
         prompt={prompt}
         onPaymentSuccess={handlePaymentSuccess}
+        onPaymentError={handlePaymentError}
       />
+
+      <LoadingModal isOpen={showLoadingModal} />
     </div>
   );
 }

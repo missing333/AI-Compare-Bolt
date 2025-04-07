@@ -103,18 +103,21 @@ class AIService {
       
       const model = this.gemini.getGenerativeModel({ model: modelVersion });
       
-      // Send the message directly without creating a chat session
-      const result = await model.generateContent(prompt);
-      const response = await result.response;
+      // Using the correct content structure as per documentation
+      const result = await model.generateContent({
+        contents: [{ role: 'user', parts: [{ text: prompt }] }]
+      });
       
-      if (!response || !response.text) {
+      const response = result.response;
+      
+      if (!response || !response.text()) {
         throw new Error('Invalid response format from Gemini API');
       }
 
       const responseTime = Number(((Date.now() - startTime) / 1000).toFixed(2));
       
       return {
-        response: response.text,
+        response: response.text(),
         responseTime
       };
     } catch (error) {
@@ -250,7 +253,7 @@ class AIService {
           };
         } else if (this.isGeminiModel(model.id)) {
           console.log('Processing Gemini model:', model.id);
-          const version = model.version === 'Latest Version' ? 'gemini-2.0-flash-lite-001' : model.version;
+          const version = model.version === 'Latest Version' ? 'gemini-2.0-flash' : model.version;
           console.log('Using Gemini version:', version);
           const { response, responseTime } = await this.getGeminiResponse(prompt, version);
           return {

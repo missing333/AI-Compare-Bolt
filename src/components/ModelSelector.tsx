@@ -2,6 +2,7 @@ import React from 'react';
 import { ChevronDown, Plus, X } from 'lucide-react';
 import { AI_MODELS } from '../data/models';
 import type { AIModel, SelectedModelInstance } from '../types';
+import { ModelIcon } from './ModelIcon';
 
 interface ModelSelectorProps {
   selectedModels: SelectedModelInstance[];
@@ -48,7 +49,10 @@ export function ModelSelector({ selectedModels, onModelSelect, onModelRemove, on
                 }}
               >
                 <div className="flex items-center justify-between">
-                  <span className="font-medium text-gray-900">{model.name}</span>
+                  <div className="flex items-center">
+                    <ModelIcon modelId={model.id} className="h-5 w-5 mr-3" />
+                    <span className="font-medium text-gray-900">{model.name}</span>
+                  </div>
                   <span className="text-sm text-gray-500">{model.description}</span>
                 </div>
               </button>
@@ -65,7 +69,10 @@ export function ModelSelector({ selectedModels, onModelSelect, onModelRemove, on
           return (
             <div key={instance.instanceId} className="flex flex-col sm:flex-row sm:items-center max-w-[500px] mx-auto gap-2 sm:gap-4 p-4 sm:p-6 bg-white rounded-xl border border-gray-200">
               <div className="flex items-center justify-between sm:justify-start gap-4">
-                <h3 className="font-medium text-gray-900 min-w-[80px] sm:min-w-[120px]">{model.name}</h3>
+                <div className="flex items-center">
+                  <ModelIcon modelId={instance.modelId} className="h-5 w-5 mr-2" />
+                  <h3 className="font-medium text-gray-900">{model.name}</h3>
+                </div>
                 <button
                   onClick={() => onModelRemove(instance.instanceId)}
                   className="text-gray-400 hover:text-gray-600 transition-colors duration-200 sm:hidden"
