@@ -20,6 +20,10 @@ class AIService {
     if (!process.env.PERPLEXITY_API_KEY) {
       throw new Error('PERPLEXITY_API_KEY is not set in environment variables');
     }
+
+    if (!process.env.META_API_KEY) {
+      console.warn('META_API_KEY is not set in environment variables. LLama API calls will fail.');
+    }
     
     this.openai = new OpenAI({
       apiKey: process.env.OPENAI_API_KEY
@@ -221,6 +225,62 @@ class AIService {
     return normalizedId.includes('pplx') || normalizedId.includes('sonar') || normalizedId === 'perplexity';
   }
 
+  isLlamaModel(modelId) {
+    const normalizedId = modelId.toLowerCase();
+    console.log('Checking if model is LLama:', modelId, 'Normalized:', normalizedId);
+    return normalizedId.includes('llama') || normalizedId === 'llama';
+  }
+
+  async getLlamaResponse(prompt, modelVersion = 'llama-3-70b-instruct') {
+    try {
+      console.log('Making LLama API call with model:', modelVersion);
+      const startTime = Date.now();
+      
+      const response = await fetch('https://api.meta.ai/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${process.env.META_API_KEY}`
+        },
+        body: JSON.stringify({
+          model: modelVersion,
+          messages: [
+            { role: 'system', content: 'You are a helpful assistant.' },
+            { role: 'user', content: prompt }
+          ],
+          temperature: 0.7,
+          max_tokens: 1000
+        })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        console.error('LLama API error response:', {
+          status: response.status,
+          statusText: response.statusText,
+          errorData
+        });
+        throw new Error(`LLama API error: ${response.statusText} - ${JSON.stringify(errorData)}`);
+      }
+
+      const data = await response.json();
+      
+      if (!data.choices || !data.choices[0] || !data.choices[0].message) {
+        throw new Error('Invalid response format from LLama API');
+      }
+
+      const responseTime = Number(((Date.now() - startTime) / 1000).toFixed(2));
+      
+      return {
+        response: data.choices[0].message.content,
+        responseTime
+      };
+    } catch (error) {
+      console.error('LLama API error:', error);
+      throw new Error(`LLama API error: ${error.message}`);
+    }
+  }
+
   async getComparisonResults(models, prompt) {
     try {
       console.log('Processing models:', JSON.stringify(models, null, 2));
@@ -271,6 +331,18 @@ class AIService {
           return {
             modelId: model.id,
             modelName: 'Perplexity',
+            version: version,
+            response,
+            latency: responseTime
+          };
+        } else if (this.isLlamaModel(model.id)) {
+          console.log('Processing LLama model:', model.id);
+          const version = model.version === 'Latest Version' ? 'llama-3-70b-instruct' : model.version;
+          console.log('Using LLama version:', version);
+          const { response, responseTime } = await this.getLlamaResponse(prompt, version);
+          return {
+            modelId: model.id,
+            modelName: 'LLama',
             version: version,
             response,
             latency: responseTime
