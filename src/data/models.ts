@@ -64,11 +64,11 @@ export const AI_MODELS: AIModel[] = [
     description: 'Meta\'s open-source language model',
     versions: [
       'Latest Version',
-      'llama-3-70b-instruct',
-      'llama-3-8b-instruct',
-      'llama-2-70b-chat',
-      'llama-2-13b-chat',
-      'llama-2-7b-chat'
+      'meta/llama-3-70b-instruct',
+      'meta/llama-3-8b-instruct',
+      'meta/llama-2-70b-chat',
+      'meta/llama-2-13b-chat',
+      'meta/llama-2-7b-chat'
     ]
   },
 ];
