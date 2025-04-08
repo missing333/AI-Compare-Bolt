@@ -1,4 +1,5 @@
 import OpenAI from 'openai';
+import LlamaAI from 'llamaai';
 import Anthropic from '@anthropic-ai/sdk';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import 'dotenv/config';
@@ -34,6 +35,10 @@ class AIService {
     });
 
     this.gemini = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
+    
+    if (process.env.META_API_KEY) {
+      this.llama = new LlamaAI(process.env.META_API_KEY);
+    }
   }
 
   async getOpenAIResponse(prompt, modelVersion = 'gpt-3.5-turbo') {
@@ -227,49 +232,33 @@ class AIService {
 
   isLlamaModel(modelId) {
     const normalizedId = modelId.toLowerCase();
-    console.log('Checking if model is LLama:', modelId, 'Normalized:', normalizedId);
+    console.log('Checking if model is LLama:', modelId, ', Normalized:', normalizedId);
     return normalizedId.includes('llama') || normalizedId.startsWith('meta/') || normalizedId === 'llama';
   }
 
-  async getLlamaResponse(prompt, modelVersion = 'meta/llama-3-70b-instruct') {
+  async getLlamaResponse(prompt, modelVersion = 'llama3.3-70b') {
     try {
       console.log('Making LLama API call with model:', modelVersion);
       const startTime = Date.now();
       
-      const response = await fetch('https://api.llamaapi.com/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${process.env.META_API_KEY}`
-        },
-        body: JSON.stringify({
-          model: modelVersion,
-          messages: [
-            { role: 'system', content: 'You are a helpful assistant.' },
-            { role: 'user', content: prompt }
-          ],
-          temperature: 0.7,
-          max_tokens: 1000,
-          stream: false
-        })
-      });
-
-      if (!response.ok) {
-        console.error('LLama API error response status:', response.status);
-        const errorText = await response.text();
-        console.error('LLama API error response text:', errorText);
-        
-        let errorData;
-        try {
-          errorData = JSON.parse(errorText);
-        } catch (e) {
-          errorData = { raw: errorText };
-        }
-        
-        throw new Error(`LLama API error: ${response.status} - ${JSON.stringify(errorData)}`);
+      if (!this.llama) {
+        throw new Error('LLama API client is not initialized. Make sure META_API_KEY is set in environment variables.');
       }
 
-      const data = await response.json();
+      const apiRequestJson = {
+        model: modelVersion,
+        messages: [
+          { role: 'system', content: 'You are a helpful assistant.' },
+          { role: 'user', content: prompt }
+        ],
+        temperature: 0.7,
+        max_tokens: 1000,
+        stream: false
+      };
+
+      console.log('LLama API request payload:', JSON.stringify(apiRequestJson, null, 2));
+      
+      const data = await this.llama.run(apiRequestJson);
       console.log('LLama API response:', JSON.stringify(data, null, 2));
       
       if (!data.choices || !data.choices[0] || !data.choices[0].message) {
@@ -344,7 +333,7 @@ class AIService {
           };
         } else if (this.isLlamaModel(model.id)) {
           console.log('Processing LLama model:', model.id);
-          const version = model.version === 'Latest Version' ? 'meta/llama-3-70b-instruct' : model.version;
+          const version = model.version === 'Latest Version' ? 'llama4-maverick' : model.version;
           console.log('Using LLama version:', version);
           const { response, responseTime } = await this.getLlamaResponse(prompt, version);
           return {
