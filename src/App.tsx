@@ -46,7 +46,7 @@ function MainContent({
       <div className="max-w-4xl w-full px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <h1 className="text-4xl font-bold text-gray-900 mb-6 tracking-tight">
-            PromptCurious: Compare AI Outputs Side-by-Side
+            PromptComparison: Compare AI Outputs Side-by-Side
           </h1>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
             Enter one prompt and see how different AI models respond. Compare ChatGPT, Claude,

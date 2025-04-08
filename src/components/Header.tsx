@@ -36,7 +36,7 @@ export function Header() {
                   strokeLinecap="round"
                 />
               </svg>
-              <span className="ml-2 text-xl font-bold">PromptCurious</span>
+              <span className="ml-2 text-xl font-bold">PromptComparison</span>
             </a>
           </div>
           <nav className="flex items-center space-x-8">
