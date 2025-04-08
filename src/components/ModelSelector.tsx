@@ -85,6 +85,8 @@ export function ModelSelector({ selectedModels, onModelSelect, onModelRemove, on
                   value={instance.version}
                   onChange={(e) => onVersionChange(instance.instanceId, e.target.value)}
                   className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm sm:text-base text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                  disabled={true}
+                  title="Version selection coming soon!"
                 >
                   {model.versions.map((version) => (
                     <option key={version} value={version}>

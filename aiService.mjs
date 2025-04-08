@@ -228,15 +228,15 @@ class AIService {
   isLlamaModel(modelId) {
     const normalizedId = modelId.toLowerCase();
     console.log('Checking if model is LLama:', modelId, 'Normalized:', normalizedId);
-    return normalizedId.includes('llama') || normalizedId === 'llama';
+    return normalizedId.includes('llama') || normalizedId.startsWith('meta/') || normalizedId === 'llama';
   }
 
-  async getLlamaResponse(prompt, modelVersion = 'llama-3-70b-instruct') {
+  async getLlamaResponse(prompt, modelVersion = 'meta/llama-3-70b-instruct') {
     try {
       console.log('Making LLama API call with model:', modelVersion);
       const startTime = Date.now();
       
-      const response = await fetch('https://api.meta.ai/v1/chat/completions', {
+      const response = await fetch('https://api.llama-api.com/chat/completions', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -249,123 +249,163 @@ class AIService {
             { role: 'user', content: prompt }
           ],
           temperature: 0.7,
-          max_tokens: 1000
+          max_tokens: 1000,
+          stream: false
         })
       });
 
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        console.error('LLama API error response:', {
-          status: response.status,
-          statusText: response.statusText,
-          errorData
-        });
-        throw new Error(`LLama API error: ${response.statusText} - ${JSON.stringify(errorData)}`);
+        console.error('LLama API error response status:', response.status);
+        const errorText = await response.text();
+        console.error('LLama API error response text:', errorText);
+        
+        let errorData;
+        try {
+          errorData = JSON.parse(errorText);
+        } catch (e) {
+          errorData = { raw: errorText };
+        }
+        
+        throw new Error(`LLama API error: ${response.status} - ${JSON.stringify(errorData)}`);
       }
 
       const data = await response.json();
+      console.log('LLama API response:', JSON.stringify(data, null, 2));
       
-      if (!data.choices || !data.choices[0] || !data.choices[0].message) {
+      if (!data.choices || !data.choices[0] || !data.choices[0].message || !data.choices[0].message.content) {
         throw new Error('Invalid response format from LLama API');
       }
 
       const responseTime = Number(((Date.now() - startTime) / 1000).toFixed(2));
       
       return {
-        response: data.choices[0].message.content,
+        response: data.choices[0].message.content.trim(),
         responseTime
       };
     } catch (error) {
-      console.error('LLama API error:', error);
-      throw new Error(`LLama API error: ${error.message}`);
+      console.error('LLama API error details:', error);
+      // Rethrow the error to let the calling code handle it
+      throw error;
     }
   }
 
   async getComparisonResults(models, prompt) {
     try {
       console.log('Processing models:', JSON.stringify(models, null, 2));
-      const results = await Promise.all(models.map(async (model) => {
-        console.log('Processing model:', model.id, 'Version:', model.version);
-        
-        if (this.isOpenAIModel(model.id)) {
-          console.log('Processing OpenAI model:', model.id);
-          const version = model.version === 'Latest Version' ? model.id : model.version;
-          console.log('Using version:', version);
-          const { response, responseTime } = await this.getOpenAIResponse(prompt, version);
-          return {
-            modelId: model.id,
-            modelName: 'GPT',
-            version: version,
-            response,
-            latency: responseTime
-          };
-        } else if (this.isClaudeModel(model.id)) {
-          console.log('Processing Claude model:', model.id);
-          const version = model.version === 'Latest Version' ? 'claude-3-opus-20240229' : model.version;
-          console.log('Using Claude version:', version);
-          const { response, responseTime } = await this.getClaudeResponse(prompt, version);
-          return {
-            modelId: model.id,
-            modelName: 'Claude',
-            version: version,
-            response,
-            latency: responseTime
-          };
-        } else if (this.isGeminiModel(model.id)) {
-          console.log('Processing Gemini model:', model.id);
-          const version = model.version === 'Latest Version' ? 'gemini-2.0-flash' : model.version;
-          console.log('Using Gemini version:', version);
-          const { response, responseTime } = await this.getGeminiResponse(prompt, version);
-          return {
-            modelId: model.id,
-            modelName: 'Gemini',
-            version: version,
-            response,
-            latency: responseTime
-          };
-        } else if (this.isPerplexityModel(model.id)) {
-          console.log('Processing Perplexity model:', model.id);
-          const version = model.version === 'Latest Version' ? 'sonar-pro' : model.version;
-          console.log('Using Perplexity version:', version);
-          const { response, responseTime } = await this.getPerplexityResponse(prompt, version);
-          return {
-            modelId: model.id,
-            modelName: 'Perplexity',
-            version: version,
-            response,
-            latency: responseTime
-          };
-        } else if (this.isLlamaModel(model.id)) {
-          console.log('Processing LLama model:', model.id);
-          const version = model.version === 'Latest Version' ? 'llama-3-70b-instruct' : model.version;
-          console.log('Using LLama version:', version);
-          const { response, responseTime } = await this.getLlamaResponse(prompt, version);
-          return {
-            modelId: model.id,
-            modelName: 'LLama',
-            version: version,
-            response,
-            latency: responseTime
-          };
-        } else {
-          console.log('Model not recognized, using mock response:', model.id);
-          const modelName = model.id.split('-')
+      const results = await Promise.allSettled(models.map(async (model) => {
+        try {
+          console.log('Processing model:', model.id, 'Version:', model.version);
+          
+          if (this.isOpenAIModel(model.id)) {
+            console.log('Processing OpenAI model:', model.id);
+            const version = model.version === 'Latest Version' ? model.id : model.version;
+            console.log('Using version:', version);
+            const { response, responseTime } = await this.getOpenAIResponse(prompt, version);
+            return {
+              modelId: model.id,
+              modelName: 'GPT',
+              version: version,
+              response,
+              latency: responseTime
+            };
+          } else if (this.isClaudeModel(model.id)) {
+            console.log('Processing Claude model:', model.id);
+            const version = model.version === 'Latest Version' ? 'claude-3-opus-20240229' : model.version;
+            console.log('Using Claude version:', version);
+            const { response, responseTime } = await this.getClaudeResponse(prompt, version);
+            return {
+              modelId: model.id,
+              modelName: 'Claude',
+              version: version,
+              response,
+              latency: responseTime
+            };
+          } else if (this.isGeminiModel(model.id)) {
+            console.log('Processing Gemini model:', model.id);
+            const version = model.version === 'Latest Version' ? 'gemini-2.0-flash' : model.version;
+            console.log('Using Gemini version:', version);
+            const { response, responseTime } = await this.getGeminiResponse(prompt, version);
+            return {
+              modelId: model.id,
+              modelName: 'Gemini',
+              version: version,
+              response,
+              latency: responseTime
+            };
+          } else if (this.isPerplexityModel(model.id)) {
+            console.log('Processing Perplexity model:', model.id);
+            const version = model.version === 'Latest Version' ? 'sonar-pro' : model.version;
+            console.log('Using Perplexity version:', version);
+            const { response, responseTime } = await this.getPerplexityResponse(prompt, version);
+            return {
+              modelId: model.id,
+              modelName: 'Perplexity',
+              version: version,
+              response,
+              latency: responseTime
+            };
+          } else if (this.isLlamaModel(model.id)) {
+            console.log('Processing LLama model:', model.id);
+            const version = model.version === 'Latest Version' ? 'meta/llama-3-70b-instruct' : model.version;
+            console.log('Using LLama version:', version);
+            const { response, responseTime } = await this.getLlamaResponse(prompt, version);
+            return {
+              modelId: model.id,
+              modelName: 'LLama',
+              version: version,
+              response,
+              latency: responseTime
+            };
+          } else {
+            console.log('Model not recognized, using mock response:', model.id);
+            const modelName = model.id.split('-')
+              .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+              .join(' ');
+            
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            return {
+              modelId: model.id,
+              modelName,
+              version: model.version || 'Latest Version',
+              response: `This is a mock response from ${modelName} to your prompt: "${prompt}"`,
+              latency: Number((Math.random() * 3).toFixed(2))
+            };
+          }
+        } catch (error) {
+          console.error(`Error processing model ${model.id}:`, error);
+          // Return an error result for this specific model instead of failing the entire request
+          const modelName = model.id === 'llama' ? 'LLama' : model.id.split('-')
             .map(word => word.charAt(0).toUpperCase() + word.slice(1))
             .join(' ');
-          
-          await new Promise(resolve => setTimeout(resolve, 1000));
-          
+            
           return {
             modelId: model.id,
             modelName,
             version: model.version || 'Latest Version',
-            response: `This is a mock response from ${modelName} to your prompt: "${prompt}"`,
-            latency: Number((Math.random() * 1000).toFixed(2))
+            response: `Error from ${modelName} API: ${error.message}. Please ensure you have a valid API key and try again.`,
+            latency: 0.1,
+            error: true
           };
         }
       }));
 
-      return results;
+      // Process the results from Promise.allSettled
+      return results.map(result => {
+        if (result.status === 'fulfilled') {
+          return result.value;
+        } else {
+          // This shouldn't happen due to the inner try/catch, but just in case
+          return {
+            modelId: 'unknown',
+            modelName: 'Error',
+            version: 'unknown',
+            response: `An unexpected error occurred: ${result.reason?.message || 'Unknown error'}`,
+            latency: 0.1,
+            error: true
+          };
+        }
+      });
     } catch (error) {
       console.error('Error in getComparisonResults:', error);
       throw error;
