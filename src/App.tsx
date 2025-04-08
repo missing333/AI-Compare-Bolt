@@ -14,7 +14,8 @@ import { AI_MODELS } from './data/models';
 import { loadStripe } from '@stripe/stripe-js';
 import { API_URL } from './config/api';
 
-const STRIPE_PRODUCT_ID = 'prod_S45beS0xV3JGII';
+const TEST_STRIPE_PRODUCT_ID = 'prod_S45beS0xV3JGII';
+const STRIPE_PRODUCT_ID = 'prod_S5hfiMjdxxIUxI';
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
 
 interface MainContentProps {
