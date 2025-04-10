@@ -285,61 +285,51 @@ class AIService {
         
         if (this.isOpenAIModel(model.id)) {
           console.log('Processing OpenAI model:', model.id);
-          const version = model.version === 'Latest Version' ? model.id : model.version;
-          console.log('Using version:', version);
-          const { response, responseTime } = await this.getOpenAIResponse(prompt, version);
+          const { response, responseTime } = await this.getOpenAIResponse(prompt, model.version);
           return {
             modelId: model.id,
             modelName: 'GPT',
-            version: version,
+            version: model.version,
             response,
             latency: responseTime
           };
         } else if (this.isClaudeModel(model.id)) {
           console.log('Processing Claude model:', model.id);
-          const version = model.version === 'Latest Version' ? 'claude-3-opus-20240229' : model.version;
-          console.log('Using Claude version:', version);
-          const { response, responseTime } = await this.getClaudeResponse(prompt, version);
+          const { response, responseTime } = await this.getClaudeResponse(prompt, model.version);
           return {
             modelId: model.id,
             modelName: 'Claude',
-            version: version,
+            version: model.version,
             response,
             latency: responseTime
           };
         } else if (this.isGeminiModel(model.id)) {
           console.log('Processing Gemini model:', model.id);
-          const version = model.version === 'Latest Version' ? 'gemini-2.0-flash' : model.version;
-          console.log('Using Gemini version:', version);
-          const { response, responseTime } = await this.getGeminiResponse(prompt, version);
+          const { response, responseTime } = await this.getGeminiResponse(prompt, model.version);
           return {
             modelId: model.id,
             modelName: 'Gemini',
-            version: version,
+            version: model.version,
             response,
             latency: responseTime
           };
         } else if (this.isPerplexityModel(model.id)) {
           console.log('Processing Perplexity model:', model.id);
-          const version = model.version === 'Latest Version' ? 'sonar-pro' : model.version;
-          console.log('Using Perplexity version:', version);
-          const { response, responseTime } = await this.getPerplexityResponse(prompt, version);
+          const { response, responseTime } = await this.getPerplexityResponse(prompt, model.version);
           return {
             modelId: model.id,
             modelName: 'Perplexity',
-            version: version,
+            version: model.version,
             response,
             latency: responseTime
           };
         } else if (this.isLlamaModel(model.id)) {
           console.log('Processing LLama model:', model.id);
-          const version = model.version === 'Latest Version' ? 'llama4-maverick' : model.version;
-          console.log('Using LLama version:', version);
-          const { response, responseTime } = await this.getLlamaResponse(prompt, version);
+          const { response, responseTime } = await this.getLlamaResponse(prompt, model.version);
           return {
             modelId: model.id,
             modelName: 'LLama',
-            version: version,
+            version: model.version,
             response,
             latency: responseTime
           };
@@ -354,7 +344,7 @@ class AIService {
           return {
             modelId: model.id,
             modelName,
-            version: model.version || 'Latest Version',
+            version: model.version,
             response: `This is a mock response from ${modelName} to your prompt: "${prompt}"`,
             latency: Number((Math.random() * 1000).toFixed(2))
           };
