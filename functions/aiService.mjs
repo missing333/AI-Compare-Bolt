@@ -1,5 +1,5 @@
 import OpenAI from 'openai';
-import { LlamaAPI } from '@meta-llama/llama-api';
+import LlamaAI from 'llamaai';
 import Anthropic from '@anthropic-ai/sdk';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import 'dotenv/config';
@@ -37,9 +37,7 @@ class AIService {
     this.gemini = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
     
     if (process.env.META_API_KEY) {
-      this.llama = new LlamaAPI({
-        apiKey: process.env.META_API_KEY
-      });
+      this.llama = new LlamaAI(process.env.META_API_KEY);
     }
   }
 
@@ -229,13 +227,13 @@ class AIService {
   isPerplexityModel(modelId) {
     const normalizedId = modelId.toLowerCase();
     console.log('Checking if model is Perplexity:', modelId, 'Normalized:', normalizedId);
-    return normalizedId === 'perplexity' || normalizedId === 'sonar-pro' || normalizedId.includes('sonar');
+    return normalizedId.includes('sonar') || normalizedId.includes('sonar-pro') || normalizedId === 'perplexity';
   }
 
   isLlamaModel(modelId) {
     const normalizedId = modelId.toLowerCase();
     console.log('Checking if model is LLama:', modelId, ', Normalized:', normalizedId);
-    return normalizedId === 'llama' || normalizedId.includes('llama') || normalizedId.startsWith('meta/');
+    return normalizedId.includes('llama') || normalizedId.startsWith('meta/') || normalizedId === 'llama';
   }
 
   async getLlamaResponse(prompt, modelVersion = 'llama3.3-70b') {
@@ -347,7 +345,7 @@ class AIService {
             modelId: model.id,
             modelName,
             version: model.version,
-            response: `This is a mock response from ${modelName} to your prompt: "${prompt}"`,
+            response: `This is a mock response from ${model.version} to your prompt: "${prompt}"`,
             latency: Number((Math.random() * 1000).toFixed(2))
           };
         }
