@@ -34,6 +34,7 @@ export default defineConfig(({ mode }) => {
       allowedHosts: [
         'localhost',
         'devserver-ui--promptcompare.netlify.app',
+        'devserver-Functionality--promptcompare.netlify.app',
         'devserver-businesslogic--promptcompare.netlify.app'
       ],
     },
