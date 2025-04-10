@@ -129,21 +129,21 @@ class AIService {
 
   isClaudeModel(modelId) {
     const normalizedId = modelId.toLowerCase();
-    console.log('Checking if model is Claude:', modelId, 'Normalized:', normalizedId);
+    console.log('Checking if model is Claude from aiService.js:', modelId, 'Normalized:', normalizedId);
     return normalizedId.includes('claude');
   }
 
   isGeminiModel(modelId) {
     const normalizedId = modelId.toLowerCase();
-    console.log('Checking if model is Gemini:', modelId, 'Normalized:', normalizedId);
+    console.log('Checking if model is Gemini from aiService.js:', modelId, 'Normalized:', normalizedId);
     return normalizedId.includes('gemini');
   }
 
   async getComparisonResults(models, prompt) {
     try {
-      console.log('Processing models:', JSON.stringify(models, null, 2));
+      console.log('Processing models from aiService.js:', JSON.stringify(models, null, 2));
       const results = await Promise.all(models.map(async (model) => {
-        console.log('Processing model:', model.id, 'Version:', model.version);
+        console.log('Processing model from aiService.js:', model.id, 'Version:', model.version);
         
         if (this.isOpenAIModel(model.id)) {
           console.log('Processing OpenAI model:', model.id);

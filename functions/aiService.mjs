@@ -279,9 +279,9 @@ class AIService {
 
   async getComparisonResults(models, prompt) {
     try {
-      console.log('Processing models:', JSON.stringify(models, null, 2));
+      console.log('Processing models from MJS:', JSON.stringify(models, null, 2));
       const results = await Promise.all(models.map(async (model) => {
-        console.log('Processing model:', model.id, 'Version:', model.version);
+        console.log('Processing model and version from MJS:', model.id, 'Version:', model.version);
         
         if (this.isOpenAIModel(model.id)) {
           console.log('Processing OpenAI model:', model.id);
