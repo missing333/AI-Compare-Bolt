@@ -36,12 +36,10 @@ class AIService {
 
     this.gemini = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
     
-    if (process.env.META_API_KEY) {
-      this.llama = new LlamaAI(process.env.META_API_KEY);
-    }
+    this.llama = new LlamaAI(process.env.META_API_KEY);
   }
 
-  async getOpenAIResponse(prompt, modelVersion = 'gpt-3.5-turbo') {
+  async getOpenAIResponse(prompt, modelVersion) {
     try {
       console.log('Making OpenAI API call with model:', modelVersion);
       const startTime = Date.now();
@@ -72,7 +70,7 @@ class AIService {
     return modelId.startsWith('gpt-');
   }
 
-  async getClaudeResponse(prompt, modelVersion = 'claude-3-opus-20240229') {
+  async getClaudeResponse(prompt, modelVersion) {
     try {
       console.log('Making Claude API call with model:', modelVersion);
       const startTime = Date.now();
@@ -105,7 +103,7 @@ class AIService {
     return normalizedId.includes('claude');
   }
 
-  async getGeminiResponse(prompt, modelVersion = 'gemini-pro') {
+  async getGeminiResponse(prompt, modelVersion) {
     try {
       console.log('Making Gemini API call with model:', modelVersion);
       const startTime = Date.now();
@@ -141,7 +139,7 @@ class AIService {
     }
   }
 
-  async getGrokResponse(prompt, modelVersion = 'grok-1') {
+  async getGrokResponse(prompt, modelVersion) {
     try {
       console.log('Making Grok API call with model:', modelVersion);
       const startTime = Date.now();
@@ -174,7 +172,7 @@ class AIService {
     return normalizedId.includes('grok');
   }
 
-  async getPerplexityResponse(prompt, modelVersion = 'sonar-pro') {
+  async getPerplexityResponse(prompt, modelVersion) {
     try {
       console.log('Making Perplexity API call with model:', modelVersion);
       const startTime = Date.now();
@@ -236,7 +234,7 @@ class AIService {
     return normalizedId.includes('llama') || normalizedId.startsWith('meta/') || normalizedId === 'llama';
   }
 
-  async getLlamaResponse(prompt, modelVersion = 'llama3.3-70b') {
+  async getLlamaResponse(prompt, modelVersion) {
     try {
       console.log('Making LLama API call with model:', modelVersion);
       const startTime = Date.now();
