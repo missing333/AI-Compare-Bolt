@@ -2,7 +2,7 @@ import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
 import Stripe from 'stripe';
-import aiService from './aiService.js';
+import aiService from './aiService.mjs';
 
 const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
 const app = express();

@@ -44,11 +44,8 @@ export const AI_MODELS: AIModel[] = [
     name: 'Perplexity',
     description: 'Perplexity\'s online AI model',
     versions: [
-      'pplx-online-70b',
-      'pplx-70b-online',
-      'pplx-70b-chat',
-      'pplx-7b-chat',
-      'pplx-7b-online'
+      'sonar-pro',
+      'sonar',
     ]
   },
   {
@@ -57,11 +54,7 @@ export const AI_MODELS: AIModel[] = [
     description: 'Meta\'s open-source language model',
     versions: [
       'llama4-maverick',
-      'meta/llama-3-70b-instruct',
-      'meta/llama-3-8b-instruct',
-      'meta/llama-2-70b-chat',
-      'meta/llama-2-13b-chat',
-      'meta/llama-2-7b-chat'
+      'llama3.3-70b',
     ]
   },
 ];
