@@ -4,6 +4,8 @@ import Anthropic from '@anthropic-ai/sdk';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import 'dotenv/config';
 
+const STRIPE_PRODUCT_ID = 'prod_S5hfiMjdxxIUxI';
+
 class AIService {
   constructor() {
     if (!process.env.OPENAI_API_KEY) {

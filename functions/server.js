@@ -32,22 +32,25 @@ app.post('/api/create-payment-intent', async (req, res) => {
       return res.status(400).json({ error: 'Invalid models data' });
     }
 
-    // Calculate amount based on number of models
-    const amount = models.length * 50; // $0.50 in cents per model
-
-    // Create payment intent
-    const paymentIntent = await stripe.paymentIntents.create({
-      amount,
-      currency: 'usd',
+    // Create checkout session instead of payment intent
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ['card'],
+      line_items: [{
+        price: 'price_S5hfiMjdxxIUxI', // This should be a price ID associated with your product
+        quantity: models.length
+      }],
+      mode: 'payment',
+      success_url: `${process.env.FRONTEND_URL}/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${process.env.FRONTEND_URL}/cancel`,
       metadata: {
         prompt,
         models: JSON.stringify(models)
       }
     });
 
-    res.status(200).json({ clientSecret: paymentIntent.client_secret });
+    res.status(200).json({ sessionId: session.id });
   } catch (error) {
-    console.error('Stripe payment intent creation error:', error);
+    console.error('Stripe checkout session creation error:', error);
     res.status(500).json({ error: error.message });
   }
 });
@@ -137,12 +140,17 @@ export const handler = async (event, context) => {
           };
         }
 
-        const amount = body.models.length * 50;
-        const paymentIntent = await stripe.paymentIntents.create({
-          amount,
-          currency: 'usd',
-          metadata: { 
-            prompt: body.prompt, 
+        const session = await stripe.checkout.sessions.create({
+          payment_method_types: ['card'],
+          line_items: [{
+            price: 'price_S5hfiMjdxxIUxI', // This should be a price ID associated with your product
+            quantity: body.models.length
+          }],
+          mode: 'payment',
+          success_url: `${process.env.FRONTEND_URL}/success?session_id={CHECKOUT_SESSION_ID}`,
+          cancel_url: `${process.env.FRONTEND_URL}/cancel`,
+          metadata: {
+            prompt: body.prompt,
             models: JSON.stringify(body.models)
           }
         });
@@ -150,7 +158,7 @@ export const handler = async (event, context) => {
         return {
           statusCode: 200,
           headers,
-          body: JSON.stringify({ clientSecret: paymentIntent.client_secret })
+          body: JSON.stringify({ sessionId: session.id })
         };
 
       case '/api/compare':
