@@ -175,8 +175,8 @@ export function PaymentModal({ isOpen, onClose, selectedModels, prompt, onPaymen
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-8 max-w-md w-full">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 md:overflow-hidden overflow-y-auto">
+      <div className="bg-white rounded-lg p-8 max-w-md w-full my-4 md:my-0 mb-20 md:mb-0">
         <h2 className="text-2xl font-bold mb-4">Complete Your Purchase</h2>
         
         {clientSecret ? (
@@ -184,7 +184,8 @@ export function PaymentModal({ isOpen, onClose, selectedModels, prompt, onPaymen
             clientSecret,
             appearance: {
               theme: 'stripe'
-            }
+            },
+            payment_method_configuration: 'pm_config_no_test_cards'
           }}>
             <CheckoutForm
               selectedModels={selectedModels}

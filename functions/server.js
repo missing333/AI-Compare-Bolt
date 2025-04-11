@@ -5,6 +5,15 @@ import Stripe from 'stripe';
 import aiService from './aiService.mjs';
 
 const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
+
+// Validate Stripe mode
+if (!process.env.STRIPE_SECRET_KEY?.startsWith('sk_live_')) {
+  console.error('Error: Stripe must be configured with live mode keys in production');
+  if (process.env.NODE_ENV === 'production') {
+    throw new Error('Stripe must be configured with live mode keys in production');
+  }
+}
+
 const app = express();
 
 // CORS configuration
