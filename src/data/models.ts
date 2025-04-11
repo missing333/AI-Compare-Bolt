@@ -12,8 +12,6 @@ export const AI_MODELS: AIModel[] = [
       'gpt-4-1106-preview',
       'gpt-4-vision-preview',
       'gpt-4',
-      'gpt-4-0314',
-      'gpt-4-0613'
     ]
   },
   {
@@ -25,9 +23,6 @@ export const AI_MODELS: AIModel[] = [
       'claude-3-opus-20240229',
       'claude-3-sonnet-20240229',
       'claude-3-haiku-20240307',
-      'claude-2.1',
-      'claude-2.0',
-      'claude-1.2'
     ]
   },
   {
@@ -50,12 +45,8 @@ export const AI_MODELS: AIModel[] = [
     name: 'Perplexity',
     description: 'Perplexity\'s online AI model',
     versions: [
-      'Latest Version',
-      'pplx-online-70b',
-      'pplx-70b-online',
-      'pplx-70b-chat',
-      'pplx-7b-chat',
-      'pplx-7b-online'
+      'sonar-pro',
+      'sonar',
     ]
   },
   {
@@ -63,7 +54,6 @@ export const AI_MODELS: AIModel[] = [
     name: 'LLama',
     description: 'Meta\'s open-source language model',
     versions: [
-      'Latest Version',
       'llama4-maverick',
       'meta/llama-3-70b-instruct',
       'meta/llama-3-8b-instruct',
