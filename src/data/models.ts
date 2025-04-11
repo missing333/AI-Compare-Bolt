@@ -2,7 +2,7 @@ import { AIModel } from '../types';
 
 export const AI_MODELS: AIModel[] = [
   {
-    id: 'gpt-4',
+    id: 'gpt',
     name: 'ChatGPT',
     description: 'OpenAI\'s most advanced model',
     versions: [

@@ -220,7 +220,7 @@ class AIService {
   isPerplexityModel(modelId) {
     const normalizedId = modelId.toLowerCase();
     console.log('Checking if model is Perplexity:', modelId, 'Normalized:', normalizedId);
-    return normalizedId.includes('sonar');
+    return normalizedId.includes('perplexity');
   }
 
   isLlamaModel(modelId) {
