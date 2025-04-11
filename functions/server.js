@@ -170,7 +170,7 @@ export const handler = async (event, context) => {
           };
         }
 
-        console.log('Making comparison with models:', body.models);
+        console.log('Making comparison with models from server.js:', body.models);
         const results = await aiService.getComparisonResults(body.models, body.prompt);
         
         return {
