@@ -1,6 +1,7 @@
 import OpenAI from 'openai';
 import Anthropic from '@anthropic-ai/sdk';
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import LlamaAI from 'llamaai';
 import 'dotenv/config';
 
 class AIService {
@@ -21,8 +22,8 @@ class AIService {
       throw new Error('PERPLEXITY_API_KEY is not set in environment variables');
     }
 
-    if (!process.env.META_API_KEY) {
-      throw new Error('META_API_KEY is not set in environment variables');
+    if (!process.env.REPLICATE_API_KEY) {
+      throw new Error('REPLICATE_API_KEY is not set in environment variables');
     }
     
     this.openai = new OpenAI({
@@ -170,40 +171,28 @@ class AIService {
     }
   }
 
+
+
   async getLlamaResponse(prompt, modelVersion = 'llama-2-70b-chat') {
+    const apiToken = process.env.META_API_KEY;
+    const llamaAPI = new LlamaAI(apiToken);
+    
     try {
       console.log('Making Llama API call with model:', modelVersion);
       const startTime = Date.now();
       
-      const response = await fetch('https://api.meta.ai/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${process.env.META_API_KEY}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          model: modelVersion,
-          messages: [
-            { role: 'system', content: 'You are a helpful assistant.' },
-            { role: 'user', content: prompt }
-          ],
-          temperature: 0.7,
-          max_tokens: 1000,
-          top_p: 0.9,
-          frequency_penalty: 0,
-          presence_penalty: 0
-        })
-      });
+      const apiRequestJson = {
+        messages: [
+          { role: 'user', content: prompt }
+        ],
+        stream: false
+      };
 
-      if (!response.ok) {
-        throw new Error(`Llama API error: ${response.statusText}`);
-      }
-
-      const data = await response.json();
+      const response = await llamaAPI.run(apiRequestJson);
       const responseTime = Number(((Date.now() - startTime) / 1000).toFixed(2));
       
       return {
-        response: data.choices[0].message.content,
+        response: response.content || response.message || response,
         responseTime
       };
     } catch (error) {
