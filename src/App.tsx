@@ -117,7 +117,7 @@ function App() {
     if (gpt4) {
       initialModels.push({
         instanceId: `gpt-4-${now}`,
-        modelId: 'gpt-4',
+        modelId: 'gpt',
         version: gpt4.versions[0]
       });
     }

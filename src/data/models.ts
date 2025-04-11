@@ -2,19 +2,16 @@ import { AIModel } from '../types';
 
 export const AI_MODELS: AIModel[] = [
   {
-    id: 'gpt-4',
+    id: 'gpt',
     name: 'ChatGPT',
     description: 'OpenAI\'s most advanced model',
     versions: [
-      'gpt-4o-2024-08-06',
-      'gpt-4o-mini-2024-07-18',
-      'o1-mini-2024-09-12',
-      'gpt-3.5-turbo-0125',
-      'gpt-4o-2024-02-15',
-      'gpt-4o-2024-01-18',
-      'gpt-4o-2023-11-20',
-      'gpt-4o-2023-08-01',
-      
+      'Latest Version',
+      'gpt-4-turbo-preview',
+      'gpt-4-0125-preview',
+      'gpt-4-1106-preview',
+      'gpt-4-vision-preview',
+      'gpt-4',
     ]
   },
   {
@@ -48,13 +45,17 @@ export const AI_MODELS: AIModel[] = [
       'sonar',
     ]
   },
-  {
-    id: 'llama',
-    name: 'LLama',
-    description: 'Meta\'s open-source language model',
-    versions: [
-      'llama4-maverick',
-      'llama3.3-70b',
-    ]
-  },
+  // {
+  //   id: 'llama',
+  //   name: 'LLama',
+  //   description: 'Meta\'s open-source language model',
+  //   versions: [
+  //     'llama4-maverick',
+  //     'meta/llama-3-70b-instruct',
+  //     'meta/llama-3-8b-instruct',
+  //     'meta/llama-2-70b-chat',
+  //     'meta/llama-2-13b-chat',
+  //     'meta/llama-2-7b-chat'
+  //   ]
+  // },
 ];
