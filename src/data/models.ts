@@ -49,17 +49,17 @@ export const AI_MODELS: AIModel[] = [
       'sonar',
     ]
   },
-  {
-    id: 'llama',
-    name: 'LLama',
-    description: 'Meta\'s open-source language model',
-    versions: [
-      'llama4-maverick',
-      'meta/llama-3-70b-instruct',
-      'meta/llama-3-8b-instruct',
-      'meta/llama-2-70b-chat',
-      'meta/llama-2-13b-chat',
-      'meta/llama-2-7b-chat'
-    ]
-  },
+  // {
+  //   id: 'llama',
+  //   name: 'LLama',
+  //   description: 'Meta\'s open-source language model',
+  //   versions: [
+  //     'llama4-maverick',
+  //     'meta/llama-3-70b-instruct',
+  //     'meta/llama-3-8b-instruct',
+  //     'meta/llama-2-70b-chat',
+  //     'meta/llama-2-13b-chat',
+  //     'meta/llama-2-7b-chat'
+  //   ]
+  // },
 ];

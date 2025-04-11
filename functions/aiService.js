@@ -1,7 +1,7 @@
 import OpenAI from 'openai';
 import Anthropic from '@anthropic-ai/sdk';
+// import LlamaAI from 'llamaai';
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import LlamaAI from 'llamaai';
 import 'dotenv/config';
 
 class AIService {
@@ -22,8 +22,8 @@ class AIService {
       throw new Error('PERPLEXITY_API_KEY is not set in environment variables');
     }
 
-    if (!process.env.REPLICATE_API_KEY) {
-      throw new Error('REPLICATE_API_KEY is not set in environment variables');
+    if (!process.env.META_API_KEY) {
+      throw new Error('META_API_KEY is not set in environment variables');
     }
     
     this.openai = new OpenAI({
@@ -173,33 +173,33 @@ class AIService {
 
 
 
-  async getLlamaResponse(prompt, modelVersion = 'llama-2-70b-chat') {
-    const apiToken = process.env.META_API_KEY;
-    const llamaAPI = new LlamaAI(apiToken);
+  // async getLlamaResponse(prompt, modelVersion = 'llama-2-70b-chat') {
+  //   const apiToken = process.env.META_API_KEY;
+  //   const llamaAPI = new LlamaAI(apiToken);
     
-    try {
-      console.log('Making Llama API call with model:', modelVersion);
-      const startTime = Date.now();
+  //   try {
+  //     console.log('Making Llama API call with model:', modelVersion);
+  //     const startTime = Date.now();
       
-      const apiRequestJson = {
-        messages: [
-          { role: 'user', content: prompt }
-        ],
-        stream: false
-      };
+  //     const apiRequestJson = {
+  //       messages: [
+  //         { role: 'user', content: prompt }
+  //       ],
+  //       stream: false
+  //     };
 
-      const response = await llamaAPI.run(apiRequestJson);
-      const responseTime = Number(((Date.now() - startTime) / 1000).toFixed(2));
+  //     const response = await llamaAPI.run(apiRequestJson);
+  //     const responseTime = Number(((Date.now() - startTime) / 1000).toFixed(2));
       
-      return {
-        response: response.content || response.message || response,
-        responseTime
-      };
-    } catch (error) {
-      console.error('Llama API error:', error);
-      throw new Error(`Llama API error: ${error.message}`);
-    }
-  }
+  //     return {
+  //       response: response.content || response.message || response,
+  //       responseTime
+  //     };
+  //   } catch (error) {
+  //     console.error('Llama API error:', error);
+  //     throw new Error(`Llama API error: ${error.message}`);
+  //   }
+  // }
 
   isOpenAIModel(modelId) {
     return modelId.startsWith('gpt-');
@@ -228,6 +228,9 @@ class AIService {
     console.log('Checking if model is Llama:', modelId, 'Normalized:', normalizedId);
     return normalizedId.includes('llama');
   }
+
+
+
 
   async getComparisonResults(models, prompt) {
     try {
