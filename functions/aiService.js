@@ -202,7 +202,9 @@ class AIService {
   // }
 
   isOpenAIModel(modelId) {
-    return modelId.startsWith('gpt-');
+    const normalizedId = modelId.toLowerCase();
+    console.log('Checking if model is GPT:', modelId, 'Normalized:', normalizedId);
+    return modelId.startsWith('gpt');
   }
 
   isClaudeModel(modelId) {
