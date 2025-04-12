@@ -156,6 +156,8 @@ export const handler = async (event, context) => {
         };
 
       case '/api/compare':
+        
+        console.log('this is the root server.mjs file')
         if (event.httpMethod !== 'POST') {
           return { statusCode: 405, body: 'Method Not Allowed' };
         }

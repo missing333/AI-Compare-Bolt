@@ -67,6 +67,7 @@ export const handler = async (event, context) => {
         };
       
       case '/api/create-payment-intent':
+        console.log('this is the functions/server.mjs file')
         if (event.httpMethod !== 'POST') {
           return { 
             statusCode: 405, 
@@ -76,6 +77,7 @@ export const handler = async (event, context) => {
         }
         
         if (!body.models || !Array.isArray(body.models)) {
+          console.log('this is the functions/server.mjs file')
           return { 
             statusCode: 400, 
             headers,
