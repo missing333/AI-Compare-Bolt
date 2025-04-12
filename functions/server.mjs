@@ -14,7 +14,9 @@ const __dirname = path.dirname(__filename);
 dotenv.config({ path: path.resolve(__dirname, '../.env') });
 
 // Initialize Stripe with the secret key
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+  apiVersion: '2023-10-16'
+});
 
 // For Netlify Functions
 export const handler = async (event, context) => {
@@ -99,6 +101,7 @@ export const handler = async (event, context) => {
             headers,
             body: JSON.stringify({ clientSecret: paymentIntent.client_secret })
           };
+          
         } catch (error) {
           console.error('Stripe payment intent creation error:', error);
           return {

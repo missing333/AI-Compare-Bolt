@@ -10,7 +10,11 @@ import { dirname } from 'path';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
+// Initialize Stripe with the secret key and API version
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+  apiVersion: '2023-10-16'
+});
+
 const app = express();
 const port = process.env.PORT || 3000;
 
