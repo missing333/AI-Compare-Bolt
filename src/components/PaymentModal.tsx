@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js';
-import type { SelectedModelInstance, ComparisonResult } from '../types';
+import type { SelectedModelInstance } from '../types';
 import { toast } from 'react-hot-toast';
 import { API_URL } from '../config/api';
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
+console.log('stripePromise', stripePromise);
 
 interface PaymentModalProps {
   isOpen: boolean;
@@ -18,7 +19,7 @@ interface PaymentModalProps {
 
 const PRICE_PER_MODEL = 0.5; // $0.50 per model
 
-function CheckoutForm({ selectedModels, prompt, onPaymentSuccess, onPaymentError, onClose }: Omit<PaymentModalProps, 'isOpen'>) {
+function CheckoutForm({ selectedModels, onPaymentSuccess, onPaymentError, onClose }: Omit<PaymentModalProps, 'isOpen'>) {
   const stripe = useStripe();
   const elements = useElements();
   const [isProcessing, setIsProcessing] = useState(false);
