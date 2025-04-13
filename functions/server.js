@@ -25,6 +25,7 @@ app.get('/api/health', (req, res) => {
 });
 
 app.post('/api/create-payment-intent', async (req, res) => {
+  console.log('this is the functions/server.js file')
   try {
     const { models, prompt } = req.body;
     

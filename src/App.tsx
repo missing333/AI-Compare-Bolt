@@ -11,11 +11,8 @@ import { Footer } from './components/Footer';
 import type { ComparisonResult, SelectedModelInstance } from './types';
 import { Toaster, toast } from 'react-hot-toast';
 import { AI_MODELS } from './data/models';
-import { loadStripe } from '@stripe/stripe-js';
 import { API_URL } from './config/api';
 
-const STRIPE_PRODUCT_ID = 'prod_S45beS0xV3JGII';
-const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
 
 interface MainContentProps {
   selectedModels: SelectedModelInstance[];
@@ -216,7 +213,7 @@ function App() {
     setIsLoading(true);
     
     const apiEndpoint = `${API_URL}/compare`;
-    console.log('Fetching comparison results from:', apiEndpoint);
+    console.log('App.tsx: Fetching comparison results from:', apiEndpoint);
     
     try {
       const response = await fetch(apiEndpoint, {
