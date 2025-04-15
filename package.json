@@ -19,6 +19,7 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.39.0",
+    "@google/genai": "^0.8.0",
     "@google/generative-ai": "^0.24.0",
     "@stripe/react-stripe-js": "^3.6.0",
     "@stripe/stripe-js": "^2.4.0",

@@ -36,6 +36,7 @@ app.use(express.json());
 
 // Wrapper to convert Netlify function handler to Express middleware
 const netlifyToExpress = (path) => async (req, res) => {
+  console.log('Server-local.js: Making netlifyToExpress call with path:', path);
   const event = {
     path,
     httpMethod: req.method,

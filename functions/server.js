@@ -62,9 +62,9 @@ app.post('/api/compare', async (req, res) => {
       return res.status(400).json({ error: 'Invalid request data' });
     }
 
-    console.log('Making comparison with models:', models);
+    console.log('Server.js: Making comparison with models:', models);
     const results = await aiService.getComparisonResults(models, prompt);
-    console.log('Comparison results:', results);
+    console.log('Server.js: Comparison results:', results);
     res.status(200).json(results);
   } catch (error) {
     console.error('Comparison error:', error);
