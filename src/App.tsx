@@ -222,7 +222,8 @@ function App() {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to start comparison');
+        const errorText = await response.text();
+        throw new Error(`Failed to start comparison: ${errorText}`);
       }
 
       const data = await response.json();
@@ -234,15 +235,22 @@ function App() {
             const statusResponse = await fetch(data.statusUrl, {
               method: 'GET',
               headers: {
-                'Content-Type': 'application/json',
+                'Accept': 'application/json'
               }
             });
 
             if (!statusResponse.ok) {
-              throw new Error('Failed to check status');
+              const errorText = await statusResponse.text();
+              throw new Error(`Failed to check status: ${errorText}`);
             }
 
-            const statusData = await statusResponse.json();
+            let statusData;
+            try {
+              statusData = await statusResponse.json();
+            } catch (error) {
+              console.error('Failed to parse status response:', await statusResponse.text());
+              throw new Error('Invalid response format from server');
+            }
 
             if (statusData.status === 'complete') {
               clearInterval(pollInterval);

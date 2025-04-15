@@ -13,7 +13,7 @@ export function ComparisonResults({ results }: ComparisonResultsProps) {
   // Calculate grid columns based on number of results
   const getGridCols = () => {
     if (results.length <= 2) return 'grid-cols-1 md:grid-cols-2';
-    if (results.length <= 4) return 'grid-cols-1 md:grid-cols-2 lg:grid-cols-2';
+    if (results.length <= 4) return 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3';
     return 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4';
   };
 
