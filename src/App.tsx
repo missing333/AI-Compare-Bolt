@@ -232,17 +232,10 @@ function App() {
         const pollInterval = setInterval(async () => {
           try {
             const statusResponse = await fetch(data.statusUrl, {
-              method: 'POST',
+              method: 'GET',
               headers: {
                 'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({
-                models: selectedModels.map(instance => ({
-                  id: instance.modelId,
-                  version: instance.version
-                })),
-                prompt: prompt.trim()
-              })
+              }
             });
 
             if (!statusResponse.ok) {
@@ -255,9 +248,11 @@ function App() {
               clearInterval(pollInterval);
               setResults(statusData.results);
               setIsLoading(false);
+              toast.success('Comparison complete!');
             } else if (statusData.status === 'error') {
               throw new Error(statusData.error || 'An error occurred while processing');
             }
+            // If status is still 'processing', continue polling
           } catch (error) {
             clearInterval(pollInterval);
             console.error('Error checking status:', error);
