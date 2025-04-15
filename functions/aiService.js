@@ -1,6 +1,6 @@
 import OpenAI from 'openai';
 import Anthropic from '@anthropic-ai/sdk';
-import { GoogleGenAI } from "@google/genai";
+import { GoogleGenerativeAI } from '@google/generative-ai';
 import 'dotenv/config';
 
 class AIService {
@@ -25,8 +25,8 @@ class AIService {
       apiKey: process.env.ANTHROPIC_API_KEY
     });
 
-    // this.gemini = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
-    this.gemini = new GoogleGenAI({ apiKey: process.env.GOOGLE_API_KEY });
+    this.gemini = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
+    // this.gemini = new GoogleGenAI({ apiKey: process.env.GOOGLE_API_KEY });
   }
 
   async getOpenAIResponse(prompt, modelVersion = 'gpt-3.5-turbo') {
