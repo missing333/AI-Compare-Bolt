@@ -82,7 +82,7 @@ export const Footer = () => {
             </a>
           </div>
           <p className="text-gray-500 text-sm">
-            © {new Date().getFullYear()} PromptComparison. All rights reserved.
+            © {new Date().getFullYear()} PromptSideBySide. All rights reserved.
           </p>
         </div>
       </div>
