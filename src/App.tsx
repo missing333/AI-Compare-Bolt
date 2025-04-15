@@ -214,6 +214,14 @@ function App() {
     
     const apiEndpoint = `${API_URL}/compare`;
     console.log('App.tsx: Fetching comparison results from:', apiEndpoint);
+    console.log('App.tsx: Selected models:', selectedModels);
+    console.log(JSON.stringify({
+      models: selectedModels.map(model => ({
+        id: model.modelId,
+        version: model.version
+      })),
+      prompt: prompt
+    }));
     
     try {
       const response = await fetch(apiEndpoint, {

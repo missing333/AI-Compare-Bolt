@@ -26,7 +26,8 @@ export const AI_MODELS: AIModel[] = [
     name: 'Gemini',
     description: 'Google\'s latest AI model',
     versions: [
-      'gemini-2.5-pro-preview',
+      'gemini-2.5-pro-exp-03-25',
+      'gemini-2.0-flash',
       'gemini-2.0-pro',
       'gemini-1.5-pro',
     ]

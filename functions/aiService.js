@@ -1,6 +1,6 @@
 import OpenAI from 'openai';
 import Anthropic from '@anthropic-ai/sdk';
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { GoogleGenAI } from "@google/genai";
 import 'dotenv/config';
 
 class AIService {
@@ -25,7 +25,8 @@ class AIService {
       apiKey: process.env.ANTHROPIC_API_KEY
     });
 
-    this.gemini = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
+    // this.gemini = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
+    this.gemini = new GoogleGenAI({ apiKey: process.env.GOOGLE_API_KEY });
   }
 
   async getOpenAIResponse(prompt, modelVersion = 'gpt-3.5-turbo') {
@@ -81,29 +82,20 @@ class AIService {
     }
   }
 
-  async getGeminiResponse(prompt, modelVersion = 'gemini-pro') {
+  async getGeminiResponse(prompt, modelVersion = 'gemini-2.0-flash') {
     try {
       console.log('Making Gemini API call with model:', modelVersion);
       const startTime = Date.now();
       
-      const model = this.gemini.getGenerativeModel({ model: modelVersion });
-      
-      // Create a chat session
-      const chat = model.startChat({
-        history: [],
-        generationConfig: {
-          temperature: 0.7,
-          maxOutputTokens: 1000,
-        },
-      });
-
-      // Send the message and get the response
-      const result = await chat.sendMessage(prompt);
-      const response = await result.response;
-      
-      if (!response || !response.text) {
-        throw new Error('Invalid response format from Gemini API');
+      async function main() {
+        const response = await this.gemini.models.generateContent({
+          model: modelVersion,
+          contents: prompt,
+        });
+        console.log(response.text);
       }
+
+      await main();
 
       const responseTime = Number(((Date.now() - startTime) / 1000).toFixed(2));
       
