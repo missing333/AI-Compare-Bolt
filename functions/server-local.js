@@ -1,17 +1,8 @@
-import dotenv from 'dotenv';
-import path from 'path';
-import { fileURLToPath } from 'url';
 import express from 'express';
 import cors from 'cors';
 import Stripe from 'stripe';
 import { handler } from './server.mjs';
 
-// // Get current directory name (needed for ES Modules)
-// const __filename = fileURLToPath(import.meta.url);
-// const __dirname = path.dirname(__filename);
-
-// // Load .env file from the parent directory
-// dotenv.config({ path: path.resolve(__dirname, '../.env') });
 
 // Initialize Stripe with the secret key
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);

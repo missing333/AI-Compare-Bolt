@@ -147,8 +147,6 @@ function App() {
   const [prompt, setPrompt] = useState('');
   const [results, setResults] = useState<ComparisonResult[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [showPayment, setShowPayment] = useState(false);
-  const [showLoadingModal, setShowLoadingModal] = useState(false);
   const [currentPage, setCurrentPage] = useState('main');
 
   useEffect(() => {
@@ -204,81 +202,96 @@ function App() {
       return;
     }
 
-    setShowPayment(true);
-  };
-
-  const fetchComparisonResults = async () => {
-    setShowPayment(false);
-    setShowLoadingModal(true);
     setIsLoading(true);
-    
-    const apiEndpoint = `${API_URL}/compare`;
-    console.log('App.tsx: Fetching comparison results from:', apiEndpoint);
-    console.log('App.tsx: Selected models:', selectedModels);
-    console.log(JSON.stringify({
-      models: selectedModels.map(model => ({
-        id: model.modelId,
-        version: model.version
-      })),
-      prompt: prompt
-    }));
-    
+    setResults([]);
+
     try {
-      const response = await fetch(apiEndpoint, {
+      // Initial request to start background processing
+      const response = await fetch(`${API_URL}/compare`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          models: selectedModels.map(model => ({
-            id: model.modelId,
-            version: model.version
+          models: selectedModels.map(instance => ({
+            id: instance.modelId,
+            version: instance.version
           })),
-          prompt,
-        }),
-        credentials: 'same-origin'
+          prompt: prompt.trim()
+        })
       });
 
       if (!response.ok) {
-        const errorText = await response.text();
-        console.error('Comparison API error:', {
-          status: response.status,
-          statusText: response.statusText,
-          url: apiEndpoint,
-          errorText
-        });
-        throw new Error(`Comparison API error: ${response.status} ${response.statusText}`);
+        throw new Error('Failed to start comparison');
       }
 
-      const results = await response.json();
-      console.log('Comparison results received successfully');
-      setResults(results);
-      toast.success('Comparison complete!');
-    } catch (err: any) {
-      console.error('Comparison error details:', err);
-      console.error('Error stack:', err.stack);
-      toast.error(err.message || 'Failed to process AI comparison');
-    } finally {
+      const data = await response.json();
+      
+      if (data.status === 'processing') {
+        // Start polling for results
+        const pollInterval = setInterval(async () => {
+          try {
+            const statusResponse = await fetch(data.statusUrl, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                models: selectedModels.map(instance => ({
+                  id: instance.modelId,
+                  version: instance.version
+                })),
+                prompt: prompt.trim()
+              })
+            });
+
+            if (!statusResponse.ok) {
+              throw new Error('Failed to check status');
+            }
+
+            const statusData = await statusResponse.json();
+
+            if (statusData.status === 'complete') {
+              clearInterval(pollInterval);
+              setResults(statusData.results);
+              setIsLoading(false);
+            } else if (statusData.status === 'error') {
+              throw new Error(statusData.error || 'An error occurred while processing');
+            }
+          } catch (error) {
+            clearInterval(pollInterval);
+            console.error('Error checking status:', error);
+            toast.error(error instanceof Error ? error.message : 'Failed to check comparison status');
+            setIsLoading(false);
+          }
+        }, 2000); // Poll every 2 seconds
+
+        // Clean up interval after 15 minutes (maximum background function duration)
+        setTimeout(() => {
+          clearInterval(pollInterval);
+          if (isLoading) {
+            setIsLoading(false);
+            toast.error('Request timed out after 15 minutes');
+          }
+        }, 15 * 60 * 1000);
+      } else {
+        // Handle immediate response (error case)
+        throw new Error('Unexpected response from server');
+      }
+    } catch (error) {
+      console.error('Error starting comparison:', error);
+      toast.error(error instanceof Error ? error.message : 'Failed to start comparison');
       setIsLoading(false);
-      setShowLoadingModal(false);
     }
   };
 
-  const handlePaymentSuccess = () => {
-    fetchComparisonResults();
-  };
-
-  const handlePaymentError = () => {
-    // Keep payment modal open for retry
-  };
-
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col font-sans">
-      <Toaster position="top-right" />
+    <div className="min-h-screen bg-gray-50">
+      <Toaster position="top-center" />
       <Header />
       
       {currentPage === 'main' ? (
-        <MainContent 
+        <MainContent
           selectedModels={selectedModels}
           handleModelSelect={handleModelSelect}
           handleModelRemove={handleModelRemove}
@@ -294,19 +307,8 @@ function App() {
       ) : (
         <FAQPage />
       )}
-
+      
       <Footer />
-
-      <PaymentModal
-        isOpen={showPayment}
-        onClose={() => setShowPayment(false)}
-        selectedModels={selectedModels}
-        prompt={prompt}
-        onPaymentSuccess={handlePaymentSuccess}
-        onPaymentError={handlePaymentError}
-      />
-
-      <LoadingModal isOpen={showLoadingModal} />
     </div>
   );
 }
