@@ -7,8 +7,6 @@ import { createServer } from 'http';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
 
 // Initialize Stripe with the secret key and API version
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
