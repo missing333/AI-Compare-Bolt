@@ -40,6 +40,5 @@ export default defineConfig(({ mode }) => {
       __STRIPE_PUBLIC_KEY__: JSON.stringify(env.VITE_STRIPE_PUBLIC_KEY || ''),
       __API_URL__: JSON.stringify(env.VITE_API_URL || 'http://localhost:3000'),
     },
-    base: '/',
   };
 });
