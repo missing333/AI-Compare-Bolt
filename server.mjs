@@ -21,7 +21,7 @@ const port = process.env.PORT || 3000;
 // CORS configuration
 const corsOptions = {
   origin: process.env.NODE_ENV === 'production' 
-    ? ['https://promptcompare.netlify.app', 'https://ai-compare-bolt.netlify.app', /.netlify\.app$/] // Allow all Netlify domains
+    ? ['https://promptcompare.vercel.app', 'https://ai-compare-bolt.vercel.app', /.vercel\.app$/] // Allow all Vercel domains
     : ['http://localhost:5173', 'http://localhost:3000', 'http://localhost:8888'],
   methods: ['GET', 'POST'],
   credentials: true,
@@ -93,19 +93,16 @@ if (process.env.NODE_ENV !== 'production') {
   });
 }
 
-// For Netlify Functions
-export const handler = async (event, context) => {
+// For Vercel Serverless Functions
+export default async (req, res) => {
   // Only allow POST and GET methods
-  if (!['POST', 'GET'].includes(event.httpMethod)) {
-    return { statusCode: 405, body: 'Method Not Allowed' };
+  if (!['POST', 'GET'].includes(req.method)) {
+    return res.status(405).json({ error: 'Method Not Allowed' });
   }
 
-  // Normalize path handling for both direct API calls and those coming through Netlify redirects
-  let path = event.path;
+  // Normalize path handling
+  let path = req.url;
   console.log('Original request path:', path);
-  
-  // Remove the /.netlify/functions/server prefix if present
-  path = path.replace('/.netlify/functions/server', '');
   
   // Ensure the path starts with /api/
   if (!path.startsWith('/api/') && path !== '/api') {
@@ -117,31 +114,25 @@ export const handler = async (event, context) => {
   // Parse body for POST requests
   let body;
   try {
-    body = event.body ? JSON.parse(event.body) : {};
+    body = req.body || {};
   } catch (error) {
-    return { statusCode: 400, body: 'Invalid JSON' };
+    return res.status(400).json({ error: 'Invalid JSON' });
   }
 
   // Route the request
   try {
     switch (path) {
       case '/api/health':
-        return {
-          statusCode: 200,
-          body: JSON.stringify({ status: 'ok', environment: process.env.NODE_ENV })
-        };
+        return res.status(200).json({ status: 'ok', environment: process.env.NODE_ENV });
       
       case '/api/create-payment-intent':
-        if (event.httpMethod !== 'POST') {
-          return { statusCode: 405, body: 'Method Not Allowed' };
+        if (req.method !== 'POST') {
+          return res.status(405).json({ error: 'Method Not Allowed' });
         }
         const { models, prompt } = body;
         
         if (!models || !Array.isArray(models)) {
-          return { 
-            statusCode: 400, 
-            body: JSON.stringify({ error: 'Invalid models data' })
-          };
+          return res.status(400).json({ error: 'Invalid models data' });
         }
         
         const amount = models.length * 50;
@@ -150,48 +141,29 @@ export const handler = async (event, context) => {
           currency: 'usd',
           metadata: { prompt, models: JSON.stringify(models) }
         });
-        return {
-          statusCode: 200,
-          body: JSON.stringify({ clientSecret: paymentIntent.client_secret })
-        };
+        return res.status(200).json({ clientSecret: paymentIntent.client_secret });
 
       case '/api/compare':
-        
-        console.log('this is the root server.mjs file')
-        if (event.httpMethod !== 'POST') {
-          return { statusCode: 405, body: 'Method Not Allowed' };
+        if (req.method !== 'POST') {
+          return res.status(405).json({ error: 'Method Not Allowed' });
         }
         
         if (!body.models || !Array.isArray(body.models) || !body.prompt) {
-          return { 
-            statusCode: 400, 
-            body: JSON.stringify({ error: 'Invalid request data' })
-          };
+          return res.status(400).json({ error: 'Invalid request data' });
         }
         
         const results = await aiService.getComparisonResults(body.models, body.prompt);
-        return {
-          statusCode: 200,
-          body: JSON.stringify(results)
-        };
+        return res.status(200).json(results);
 
       default:
         console.log('Path not found:', path);
-        return { 
-          statusCode: 404, 
-          body: JSON.stringify({ error: 'Not Found', path }) 
-        };
+        return res.status(404).json({ error: 'Not Found', path });
     }
   } catch (error) {
     console.error('Server error:', error);
-    return {
-      statusCode: 500,
-      body: JSON.stringify({
-        error: error.message,
-        stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
-      })
-    };
+    return res.status(500).json({
+      error: error.message,
+      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+    });
   }
-};
-
-export default app; 
+}; 
