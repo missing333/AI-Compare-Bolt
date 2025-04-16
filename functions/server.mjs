@@ -1,8 +1,4 @@
-import dotenv from 'dotenv';
-import path from 'path';
-import { fileURLToPath } from 'url';
-import express from 'express';
-import cors from 'cors';
+
 import Stripe from 'stripe';
 import aiService from './aiService.js';
 

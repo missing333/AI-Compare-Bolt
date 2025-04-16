@@ -102,8 +102,11 @@ export default async (req, res) => {
   let path = req.url;
   console.log('Original request path:', path);
   
+  // Remove query parameters for path matching
+  path = path.split('?')[0];
+  
   // Ensure the path starts with /api/
-  if (!path.startsWith('/api/') && path !== '/api') {
+  if (!path.startsWith('/api/')) {
     path = `/api${path.startsWith('/') ? path : `/${path}`}`;
   }
   
