@@ -1,5 +1,4 @@
 import OpenAI from 'openai';
-import LlamaAI from 'llamaai';
 import Anthropic from '@anthropic-ai/sdk';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import 'dotenv/config';
@@ -36,9 +35,9 @@ class AIService {
 
     this.gemini = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
     
-    if (process.env.META_API_KEY) {
-      this.llama = new LlamaAI(process.env.META_API_KEY);
-    }
+    // if (process.env.META_API_KEY) {
+    //   this.llama = new LlamaAI(process.env.META_API_KEY);
+    // }
   }
 
   async getOpenAIResponse(prompt, modelVersion = 'gpt-3.5-turbo') {

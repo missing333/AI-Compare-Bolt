@@ -29,7 +29,6 @@
     "dotenv": "^16.4.7",
     "express": "^5.1.0",
     "genai": "^0.0.18",
-    "llamaai": "^1.0.4",
     "lucide-react": "^0.344.0",
     "openai": "^4.91.1",
     "postcss": "^8.4.35",
