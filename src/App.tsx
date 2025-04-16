@@ -246,10 +246,15 @@ function App() {
 
             let statusData;
             try {
-              statusData = await statusResponse.json();
+              const responseText = await statusResponse.text();
+              try {
+                statusData = JSON.parse(responseText);
+              } catch (error) {
+                console.error('Failed to parse status response:', responseText);
+                throw new Error('Invalid response format from server');
+              }
             } catch (error) {
-              console.error('Failed to parse status response:', await statusResponse.text());
-              throw new Error('Invalid response format from server');
+              throw new Error('Failed to read response from server');
             }
 
             if (statusData.status === 'complete') {
