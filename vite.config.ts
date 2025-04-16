@@ -33,13 +33,13 @@ export default defineConfig(({ mode }) => {
       host: true,
       allowedHosts: [
         'localhost',
-        'devserver-ui--promptcompare.netlify.app',
-        'devserver-businesslogic--promptcompare.netlify.app'
+        '.vercel.app'
       ],
     },
     define: {
       __STRIPE_PUBLIC_KEY__: JSON.stringify(env.VITE_STRIPE_PUBLIC_KEY || ''),
       __API_URL__: JSON.stringify(env.VITE_API_URL || 'http://localhost:3000'),
     },
+    base: '/',
   };
 });
