@@ -222,7 +222,7 @@ function App() {
     }
 
     // Track Click Compare event
-    window.gtag('event', 'conversion', {
+    gtag('event', 'conversion', {
       'send_to': 'AW-980072147/9YbJCMajproaENPtqtMD',
       'event_callback': () => {
         console.log('App.tsx: gtag on compare function called. calling setShowPayment(true)');
