@@ -210,6 +210,7 @@ function App() {
   };
 
   const handleCompare = async () => {
+    console.log('App.tsx: handleCompare function called');
     if (selectedModels.length === 0) {
       toast.error('Please select at least one AI model');
       return;
@@ -224,6 +225,7 @@ function App() {
     window.gtag('event', 'conversion', {
       'send_to': 'AW-980072147/9YbJCMajproaENPtqtMD',
       'event_callback': () => {
+        console.log('App.tsx: gtag on compare function called. calling setShowPayment(true)');
         setShowPayment(true);
       }
     });
