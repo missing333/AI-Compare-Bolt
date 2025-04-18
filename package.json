@@ -19,6 +19,7 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.39.0",
+    "@google/genai": "^0.8.0",
     "@google/generative-ai": "^0.24.0",
     "@stripe/react-stripe-js": "^3.6.0",
     "@stripe/stripe-js": "^2.4.0",
@@ -27,7 +28,7 @@
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^5.1.0",
-    "llamaai": "^1.0.4",
+    "genai": "^0.0.18",
     "lucide-react": "^0.344.0",
     "openai": "^4.91.1",
     "postcss": "^8.4.35",

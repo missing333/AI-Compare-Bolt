@@ -5,6 +5,7 @@ import type { SelectedModelInstance } from '../types';
 import { toast } from 'react-hot-toast';
 import { API_URL } from '../config/api';
 
+
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
 console.log('stripePromise', stripePromise);
 

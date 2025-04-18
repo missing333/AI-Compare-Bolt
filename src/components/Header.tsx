@@ -10,33 +10,15 @@ export function Header() {
             <a href="/" className="flex items-center">
               <svg 
                 className="h-8 w-8" 
-                viewBox="0 0 24 24" 
+                viewBox="0 0 32 32" 
                 fill="none" 
                 xmlns="http://www.w3.org/2000/svg"
               >
-                <path 
-                  d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" 
-                  fill="#6366F1" 
-                  stroke="#4F46E5" 
-                  strokeWidth="1.5" 
-                  strokeLinecap="round" 
-                  strokeLinejoin="round"
-                />
-                <circle cx="12" cy="12" r="5" fill="#818CF8" />
-                <path 
-                  d="M9 12H15" 
-                  stroke="white" 
-                  strokeWidth="1.5" 
-                  strokeLinecap="round"
-                />
-                <path 
-                  d="M12 9V15" 
-                  stroke="white" 
-                  strokeWidth="1.5" 
-                  strokeLinecap="round"
-                />
+                <rect x="4" y="8" width="6" height="16" rx="1" fill="#6366F1"/>
+                <rect x="13" y="4" width="6" height="24" rx="1" fill="#818CF8"/>
+                <rect x="22" y="8" width="6" height="16" rx="1" fill="#6366F1"/>
               </svg>
-              <span className="ml-2 text-xl font-bold">PromptComparison</span>
+              <span className="ml-2 text-xl font-bold">PromptSideBySide</span>
             </a>
           </div>
           <nav className="flex items-center space-x-8">

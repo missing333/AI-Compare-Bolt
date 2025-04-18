@@ -11,12 +11,8 @@ import { Footer } from './components/Footer';
 import type { ComparisonResult, SelectedModelInstance } from './types';
 import { Toaster, toast } from 'react-hot-toast';
 import { AI_MODELS } from './data/models';
-import { loadStripe } from '@stripe/stripe-js';
 import { API_URL } from './config/api';
 
-const TEST_STRIPE_PRODUCT_ID = 'prod_S45beS0xV3JGII';
-const STRIPE_PRODUCT_ID = 'prod_S5hfiMjdxxIUxI';
-const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
 
 interface MainContentProps {
   selectedModels: SelectedModelInstance[];
@@ -46,8 +42,11 @@ function MainContent({
       {/* Regular width container for header and non-results sections */}
       <div className="max-w-4xl w-full px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
-          <h1 className="text-4xl font-bold text-gray-900 mb-6 tracking-tight">
-            PromptComparison: Compare AI Outputs Side-by-Side
+          <h1 className="text-6xl font-bold text-gray-900 mb-6 tracking-tight">
+            Save before you subscribe!
+          </h1>
+          <h1 className="text-2xl font-bold text-gray-900 mb-6 tracking-tight">
+            Compare AI Outputs Side-by-Side
           </h1>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
             Enter one prompt and see how different AI models respond. Compare ChatGPT, Claude,
@@ -217,7 +216,15 @@ function App() {
     setIsLoading(true);
     
     const apiEndpoint = `${API_URL}/compare`;
-    console.log('Fetching comparison results from:', apiEndpoint);
+    console.log('App.tsx: Fetching comparison results from:', apiEndpoint);
+    console.log('App.tsx: Selected models:', selectedModels);
+    console.log(JSON.stringify({
+      models: selectedModels.map(model => ({
+        id: model.modelId,
+        version: model.version
+      })),
+      prompt: prompt
+    }));
     
     try {
       const response = await fetch(apiEndpoint, {

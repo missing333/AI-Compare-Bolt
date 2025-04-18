@@ -33,9 +33,7 @@ export default defineConfig(({ mode }) => {
       host: true,
       allowedHosts: [
         'localhost',
-        'devserver-ui--promptcompare.netlify.app',
-        'devserver-functionality--promptcompare.netlify.app',
-        'devserver-businesslogic--promptcompare.netlify.app'
+        '.vercel.app'
       ],
     },
     define: {

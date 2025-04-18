@@ -23,7 +23,7 @@ export const Footer = () => {
               <li><a href="/models/chatgpt" className="text-gray-600 hover:text-gray-900">ChatGPT</a></li>
               <li><a href="/models/claude" className="text-gray-600 hover:text-gray-900">Claude</a></li>
               <li><a href="/models/gemini" className="text-gray-600 hover:text-gray-900">Gemini</a></li>
-              <li><a href="/models/deepseak" className="text-gray-600 hover:text-gray-900">Deepseak</a></li>
+              <li><a href="/models/deepseek" className="text-gray-600 hover:text-gray-900">Deepseek</a></li>
               <li><a href="/models" className="text-gray-600 hover:text-gray-900">All Models</a></li>
             </ul>
           </div>
@@ -82,7 +82,7 @@ export const Footer = () => {
             </a>
           </div>
           <p className="text-gray-500 text-sm">
-            © {new Date().getFullYear()} PromptComparison. All rights reserved.
+            © {new Date().getFullYear()} PromptSideBySide. All rights reserved.
           </p>
         </div>
       </div>

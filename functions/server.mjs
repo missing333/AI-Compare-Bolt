@@ -1,20 +1,19 @@
-import dotenv from 'dotenv';
-import path from 'path';
-import { fileURLToPath } from 'url';
-import express from 'express';
-import cors from 'cors';
+
 import Stripe from 'stripe';
 import aiService from './aiService.js';
 
-// Get current directory name (needed for ES Modules)
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+// // Get current directory name (needed for ES Modules)
+// const __filename = fileURLToPath(import.meta.url);
+// const __dirname = path.dirname(__filename);
 
-// Load .env file from the parent directory
-dotenv.config({ path: path.resolve(__dirname, '../.env') });
+// // Load .env file from the parent directory
+// dotenv.config({ path: path.resolve(__dirname, '../.env') });
+
 
 // Initialize Stripe with the secret key
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+  apiVersion: '2023-10-16'
+});
 
 // For Netlify Functions
 export const handler = async (event, context) => {
@@ -65,6 +64,7 @@ export const handler = async (event, context) => {
         };
       
       case '/api/create-payment-intent':
+        console.log('this is the functions/server.mjs file')
         if (event.httpMethod !== 'POST') {
           return { 
             statusCode: 405, 
@@ -74,6 +74,7 @@ export const handler = async (event, context) => {
         }
         
         if (!body.models || !Array.isArray(body.models)) {
+          console.log('this is the functions/server.mjs file')
           return { 
             statusCode: 400, 
             headers,
@@ -99,6 +100,7 @@ export const handler = async (event, context) => {
             headers,
             body: JSON.stringify({ clientSecret: paymentIntent.client_secret })
           };
+          
         } catch (error) {
           console.error('Stripe payment intent creation error:', error);
           return {
