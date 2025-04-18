@@ -221,14 +221,20 @@ function App() {
       return;
     }
 
-    // Track Click Compare event
-    window.gtag('event', 'conversion', {
-      'send_to': 'AW-980072147/9YbJCMajproaENPtqtMD',
-      'event_callback': () => {
-        console.log('App.tsx: gtag on compare function called. calling setShowPayment(true)');
-        setShowPayment(true);
-      }
-    });
+    // First show the payment modal
+    setShowPayment(true);
+
+    // Then track the event
+    try {
+      window.gtag('event', 'click', {
+        'event_category': 'comparison',
+        'event_label': 'compare_button',
+        'send_to': 'AW-980072147/9YbJCMajproaENPtqtMD'
+      });
+    } catch (error) {
+      console.error('Failed to track event:', error);
+      // Continue with payment flow even if tracking fails
+    }
   };
 
   const fetchComparisonResults = async () => {
@@ -289,16 +295,21 @@ function App() {
   };
 
   const handlePaymentSuccess = () => {
-    // Track conversion event
-    window.gtag('event', 'conversion', {
-      'send_to': 'AW-980072147/hPgiCJvZ0rgaENPtqtMD',
-      'value': 1.0,
-      'currency': 'USD',
-      'transaction_id': '',
-      'event_callback': () => {
-        fetchComparisonResults();
-      }
-    });
+    // First start the comparison
+    fetchComparisonResults();
+    
+    // Then track the conversion event
+    try {
+      window.gtag('event', 'conversion', {
+        'send_to': 'AW-980072147/hPgiCJvZ0rgaENPtqtMD',
+        'value': 1.0,
+        'currency': 'USD',
+        'transaction_id': ''
+      });
+    } catch (error) {
+      console.error('Failed to track conversion:', error);
+      // Comparison already started, so we can ignore tracking errors
+    }
   };
 
   const handlePaymentError = () => {
