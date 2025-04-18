@@ -297,7 +297,6 @@ function App() {
         fetchComparisonResults();
       }
     });
-    
   };
 
   const handlePaymentError = () => {

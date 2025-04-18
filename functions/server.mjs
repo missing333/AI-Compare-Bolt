@@ -1,4 +1,3 @@
-
 import Stripe from 'stripe';
 import aiService from './aiService.js';
 
@@ -103,6 +102,40 @@ export const handler = async (event, context) => {
           
         } catch (error) {
           console.error('Stripe payment intent creation error:', error);
+          return {
+            statusCode: 500,
+            headers,
+            body: JSON.stringify({ error: error.message })
+          };
+        }
+
+      case '/api/compare':
+        console.log('this is the functions/server.mjs file')
+        if (event.httpMethod !== 'POST') {
+          return { 
+            statusCode: 405, 
+            headers,
+            body: JSON.stringify({ error: 'Method Not Allowed' })
+          };
+        }
+        
+        if (!body.models || !Array.isArray(body.models) || !body.prompt) {
+          return { 
+            statusCode: 400, 
+            headers,
+            body: JSON.stringify({ error: 'Invalid request data' })
+          };
+        }
+        
+        try {
+          const results = await aiService.getComparisonResults(body.models, body.prompt);
+          return {
+            statusCode: 200,
+            headers,
+            body: JSON.stringify(results)
+          };
+        } catch (error) {
+          console.error('Comparison error:', error);
           return {
             statusCode: 500,
             headers,
