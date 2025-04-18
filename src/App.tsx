@@ -13,6 +13,8 @@ import { Toaster, toast } from 'react-hot-toast';
 import { AI_MODELS } from './data/models';
 import { API_URL } from './config/api';
 
+// Declare the gtag_report_conversion function from index.html
+declare function gtag_report_conversion(url: string): boolean;
 
 interface MainContentProps {
   selectedModels: SelectedModelInstance[];
@@ -269,6 +271,7 @@ function App() {
 
   const handlePaymentSuccess = () => {
     fetchComparisonResults();
+    gtag_report_conversion('https://promptcompare.netlify.app/');
   };
 
   const handlePaymentError = () => {
