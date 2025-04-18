@@ -197,6 +197,7 @@ function App() {
   };
 
   const handleCompare = async () => {
+    console.log('App.tsx: handleCompare function called');
     if (selectedModels.length === 0) {
       toast.error('Please select at least one AI model');
       return;
@@ -207,7 +208,20 @@ function App() {
       return;
     }
 
+    // First show the payment modal
     setShowPayment(true);
+
+    // Then track the event
+    try {
+      window.gtag('event', 'click', {
+        'event_category': 'comparison',
+        'event_label': 'compare_button',
+        'send_to': 'AW-980072147/9YbJCMajproaENPtqtMD'
+      });
+    } catch (error) {
+      console.error('Failed to track event:', error);
+      // Continue with payment flow even if tracking fails
+    }
   };
 
   const fetchComparisonResults = async () => {
@@ -268,7 +282,21 @@ function App() {
   };
 
   const handlePaymentSuccess = () => {
+    // First start the comparison
     fetchComparisonResults();
+    
+    // Then track the conversion event
+    try {
+      window.gtag('event', 'conversion', {
+        'send_to': 'AW-980072147/hPgiCJvZ0rgaENPtqtMD',
+        'value': 1.0,
+        'currency': 'USD',
+        'transaction_id': ''
+      });
+    } catch (error) {
+      console.error('Failed to track conversion:', error);
+      // Comparison already started, so we can ignore tracking errors
+    }
   };
 
   const handlePaymentError = () => {
