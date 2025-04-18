@@ -13,6 +13,19 @@ import { Toaster, toast } from 'react-hot-toast';
 import { AI_MODELS } from './data/models';
 import { API_URL } from './config/api';
 
+// Declare global gtag and dataLayer
+declare global {
+  interface Window {
+    dataLayer: any[];
+    gtag: (...args: any[]) => void;
+  }
+}
+
+// Initialize dataLayer and gtag if not already present
+if (typeof window !== 'undefined') {
+  window.dataLayer = window.dataLayer || [];
+  window.gtag = function() { window.dataLayer.push(arguments); }
+}
 
 interface MainContentProps {
   selectedModels: SelectedModelInstance[];
@@ -105,7 +118,7 @@ function MainContent({
 function App() {
   const [selectedModels, setSelectedModels] = useState<SelectedModelInstance[]>(() => {
     // Initialize with GPT-4, Claude, Gemini, and Perplexity pre-selected
-    const gpt4 = AI_MODELS.find(m => m.id === 'gpt-4');
+    const gpt4 = AI_MODELS.find(m => m.id === 'gpt');
     const claude = AI_MODELS.find(m => m.id === 'claude');
     const gemini = AI_MODELS.find(m => m.id === 'gemini');
     const perplexity = AI_MODELS.find(m => m.id === 'perplexity');
@@ -116,7 +129,7 @@ function App() {
     if (gpt4) {
       initialModels.push({
         instanceId: `gpt-4-${now}`,
-        modelId: 'gpt-4',
+        modelId: 'gpt',
         version: gpt4.versions[0]
       });
     }
@@ -207,7 +220,13 @@ function App() {
       return;
     }
 
-    setShowPayment(true);
+    // Track Click Compare event
+    window.gtag('event', 'conversion', {
+      'send_to': 'AW-980072147/9YbJCMajproaENPtqtMD',
+      'event_callback': () => {
+        setShowPayment(true);
+      }
+    });
   };
 
   const fetchComparisonResults = async () => {
@@ -268,7 +287,17 @@ function App() {
   };
 
   const handlePaymentSuccess = () => {
-    fetchComparisonResults();
+    // Track conversion event
+    window.gtag('event', 'conversion', {
+      'send_to': 'AW-980072147/hPgiCJvZ0rgaENPtqtMD',
+      'value': 1.0,
+      'currency': 'USD',
+      'transaction_id': '',
+      'event_callback': () => {
+        fetchComparisonResults();
+      }
+    });
+    
   };
 
   const handlePaymentError = () => {
