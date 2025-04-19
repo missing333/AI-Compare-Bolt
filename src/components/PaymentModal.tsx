@@ -60,7 +60,7 @@ function CheckoutForm({ selectedModels, onPaymentSuccess, onPaymentError, onClos
 
   return (
     <form onSubmit={handleSubmit}>
-      <div className="p-6">
+      <div className="p-4 sm:p-6">
         <div className="mb-6">
           <p className="text-gray-600">Selected Models: {selectedModels.length}</p>
           <p className="text-gray-600">Price per model: ${PRICE_PER_MODEL.toFixed(2)}</p>
@@ -79,11 +79,11 @@ function CheckoutForm({ selectedModels, onPaymentSuccess, onPaymentError, onClos
         </div>
       </div>
 
-      <div className="p-6 border-t border-gray-200">
-        <div className="flex justify-end space-x-4">
+      <div className="p-4 sm:p-6 border-t border-gray-200">
+        <div className="flex justify-end space-x-3 sm:space-x-4">
           <button
             type="button"
-            className="px-4 py-2 text-gray-600 hover:text-gray-900"
+            className="px-3 sm:px-4 py-2 text-gray-600 hover:text-gray-900"
             onClick={onClose}
             disabled={isProcessing}
           >
@@ -91,7 +91,7 @@ function CheckoutForm({ selectedModels, onPaymentSuccess, onPaymentError, onClos
           </button>
           <button
             type="submit"
-            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
+            className="px-3 sm:px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
             disabled={!stripe || isProcessing}
           >
             {isProcessing ? 'Processing...' : `Pay $${totalAmount.toFixed(2)}`}
@@ -183,9 +183,9 @@ export function PaymentModal({ isOpen, onClose, selectedModels, prompt, onPaymen
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-start justify-center z-50 overflow-y-auto overflow-x-hidden">
-      <div className="bg-white rounded-lg w-full max-w-md min-w-[320px]">
-        <div className="p-6 border-b border-gray-200">
-          <h2 className="text-2xl font-bold">Complete Your Purchase</h2>
+      <div className="bg-white rounded-lg w-[280px] sm:w-full sm:max-w-md">
+        <div className="p-4 sm:p-6 border-b border-gray-200">
+          <h2 className="text-xl sm:text-2xl font-bold">Complete Your Purchase</h2>
         </div>
         
         {clientSecret ? (
@@ -204,7 +204,7 @@ export function PaymentModal({ isOpen, onClose, selectedModels, prompt, onPaymen
             />
           </Elements>
         ) : (
-          <div className="p-6">
+          <div className="p-4 sm:p-6">
             <div className="flex justify-center">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
             </div>

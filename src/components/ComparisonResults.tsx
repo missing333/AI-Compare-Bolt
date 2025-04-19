@@ -18,27 +18,27 @@ export function ComparisonResults({ results }: ComparisonResultsProps) {
   };
 
   return (
-    <div className={`grid ${getGridCols()} gap-4`}>
+    <div className={`grid ${getGridCols()} gap-3 sm:gap-4 w-full`}>
       {results.map((result) => (
         <div key={result.modelId} className="border border-gray-200 rounded-xl shadow-sm overflow-hidden h-full">
-          <div className="border-b border-gray-200 px-4 py-3">
+          <div className="border-b border-gray-200 px-3 sm:px-4 py-2 sm:py-3">
             <div className="flex justify-between items-center">
               <div className="flex items-center">
-                <ModelIcon modelId={result.modelId} className="h-6 w-6 mr-3" />
+                <ModelIcon modelId={result.modelId} className="h-5 w-5 sm:h-6 sm:w-6 mr-2 sm:mr-3" />
                 <div>
-                  <h3 className="text-lg font-medium text-gray-900">{result.modelName}</h3>
-                  <p className="text-sm text-gray-500">{result.version}</p>
+                  <h3 className="text-base sm:text-lg font-medium text-gray-900">{result.modelName}</h3>
+                  <p className="text-xs sm:text-sm text-gray-500">{result.version}</p>
                 </div>
               </div>
-              <div className="flex items-center text-sm text-gray-500">
-                <Clock className="h-4 w-4 mr-1" />
+              <div className="flex items-center text-xs sm:text-sm text-gray-500">
+                <Clock className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
                 {result.latency.toFixed(2)}s
               </div>
             </div>
           </div>
-          <div className="px-4 py-3">
+          <div className="px-3 sm:px-4 py-2 sm:py-3">
             <div className="prose prose-sm max-w-none">
-              <pre className="whitespace-pre-wrap font-mono p-3 rounded-lg text-sm text-gray-700">
+              <pre className="whitespace-pre-wrap font-mono text-xs sm:text-sm p-2 sm:p-3 rounded-lg text-gray-700">
                 {result.response}
               </pre>
             </div>
