@@ -47,27 +47,29 @@ export const Footer = () => {
               <li><a href="/sales" className="text-gray-600 hover:text-gray-900">Sales</a></li>
               <li><a href="/partnerships" className="text-gray-600 hover:text-gray-900">Partnerships</a></li>
             </ul>
+          </div>
+        </div>
 
-            {/* Subscribe Section */}
-            <div className="mt-8">
-              <h3 className="text-lg font-semibold mb-4">Subscribe</h3>
-              <div className="flex gap-2">
-                <input
-                  type="email"
-                  placeholder="Your email"
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-                <button className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
-                  Subscribe
-                </button>
-              </div>
+        {/* Subscribe Section - Full width */}
+        <div className="border-t border-gray-200 pt-8 pb-12">
+          <div className="max-w-xl mx-auto">
+            <h3 className="text-lg font-semibold mb-4 text-center">Subscribe to Our Newsletter</h3>
+            <div className="flex flex-col sm:flex-row gap-2">
+              <input
+                type="email"
+                placeholder="Your email"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+              <button className="w-full sm:w-auto whitespace-nowrap px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+                Subscribe
+              </button>
             </div>
           </div>
         </div>
 
         {/* Bottom Section */}
-        <div className="border-t border-gray-200 pt-8 flex flex-col md:flex-row justify-between items-center">
-          <div className="flex space-x-6 mb-4 md:mb-0">
+        <div className="flex flex-col sm:flex-row justify-between items-center pt-8 border-t border-gray-200">
+          <div className="flex space-x-6 mb-4 sm:mb-0">
             <a href="https://twitter.com" className="text-gray-400 hover:text-gray-600">
               <Twitter size={20} />
             </a>
@@ -81,7 +83,7 @@ export const Footer = () => {
               <Phone size={20} />
             </a>
           </div>
-          <p className="text-gray-500 text-sm">
+          <p className="text-gray-500 text-sm text-center">
             © {new Date().getFullYear()} PromptSideBySide. All rights reserved.
           </p>
         </div>
